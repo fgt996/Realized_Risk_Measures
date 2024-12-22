@@ -44,15 +44,31 @@ Finally, ```price2params_ma``` is the same, but it assumes that the subordinated
 
 The ```models``` module is the core of this repository. It contains five classes for filtering the risk measures.
 
-```MC_RealizedQuantile```
+```MC_RealizedQuantile``` is one of the filtering approaches proposed in [1]. It is based on the assumption of iid subordinated returns following the t-distribution. The Monte-Carlo approach is used to recover the low-frequency risk measures.
 
-```MC_RealizedQuantile_MA```
+```MC_RealizedQuantile_MA```is another approach proposed in [1]. It is the same as ```MC_RealizedQuantile```, but the subordinated returns are assumed to follow an MA(1) process.
 
-```Ch_RealizedQuantile```
+```Ch_RealizedQuantile``` is similar to ```MC_RealizedQuantile```, but it exploits an approach based on the high-frequency characteristic function to obtain the low-frequency risk measures.
 
-```Ch_RealizedQuantile_MA```
+```Ch_RealizedQuantile_MA``` is the same of ```MC_RealizedQuantile_MA```, but it is based on the characteristic function.
 
-```DH_RealizedQuantile```
+```DH_RealizedQuantile``` is the approach proposed in [2]. It is based on the assumption of self-similarity of the subordinated logarithmic price process.
 
 Please refer to [1] for a comprehensive description of these approaches and their pro and cons.
+
+An example of filtering the risk measures from a DataFrame is:
+```python
+import numpy as np
+from models.caesar import CAESar
+
+y = np.array([.3, -.1, .2, -.4, -.3, -.5, -.4, .1, .3, -.2, .2, .5]) #whole time series; 1D vector
+tv = 8 #Split point train vs test
+
+mdl = CAESar(theta, 'AS') # Initialize the model
+res = mdl.fit_predict(y, tv, seed=2) #Fit up to tv and predict for the next timesteps
+
+print(res['qf']) #Print the VaR forecasts
+print(res['ef']) #Print the ES forecasts
+```
+
 
