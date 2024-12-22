@@ -22,3 +22,21 @@ cd code
 ```
 
 # What is in this Repository
+
+This repository shares the code used for the experimental stage of "A High-frequency Approach to Risk Measures" [1]. Specifically, the aim is to provide a range of tools to filter the daily risk measures starting from the minute-by-minute observations. It is worth underlining that we are working with the left tail of the return time series in a financial context.
+
+The repository is organized as follows:
+
+### utils
+The ```utils``` module contains some functions used for the data preprocessing. The most relevant class is ```Subordinator```, which is a way to aggregate the high-frequency data into coarser granularities. It exploits the market activity to clean the microstructural noise. The ```Fill_RTH_Minutes``` function fills the holes and imputes the nan from a DataFrame made up of minute-by-minute prices in order to have significant values for the regular trading hours (from 09:30 to 16:00) of all the days in the original DataFrame. ```IntraSeries_2_DayReturn``` returns an np.array made up of the daily returns (logarithmic, computed as $`\log(S_{16:00}) - \log(S_{09:30})`$) for every day in the DataFrame. ```price2params``` maps a pd.DataFrame into a dictionary. Every key corresponds to a day in the original DataFrame, every value corresponds to the parameters of a Student's t-distribution fitted to the subordinated returns (so, the ```Subordinator``` is applied inside it and the subordinated returns are assumed to be iid). Finally, ```price2params_ma``` is the same, but it assumes that the subordinated returns follow an MA(1) process, so the first element in every value is the autoregressive coefficient, and the last entries are the t parameters fitted on the innovations series.
+
+### models
+
+The ```models``` module is the core of this repository. It contains five classes for filtering the risk measures. ```MC_RealizedQuantile```
+```MC_RealizedQuantile_MA```
+```Ch_RealizedQuantile```
+```Ch_RealizedQuantile_MA```
+```DH_RealizedQuantile```
+
+Please refer to [1] for a comprehensive description of these approaches and their pro and cons.
+
