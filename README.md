@@ -56,7 +56,7 @@ The ```models``` module is the core of this repository. It contains five classes
 
 Please refer to [1] for a comprehensive description of these approaches and their pro and cons.
 
-An example of filtering the risk measures from a DataFrame is:
+An example of filtering the risk measures from a pandas.Series is:
 ```python
 import numpy as np
 from utils import price2params
@@ -76,4 +76,11 @@ print(res['qr']) #Print the realized VaR
 print(res['er']) #Print the realized ES
 ```
 
+# Bibliography
+[1]: Gatta, F., & Lillo, F., & Mazzarisi, P. (2024). A High-frequency Approach to Risk Measures. TBD.
+
+[2]: Dimitriadis, T., & Halbleib, R. (2022). Realized quantiles. Journal of Business & Economic Statistics, 40(3), 1346-1361.
+
+# Similar Repository
+If you are interested in risk measures, you can find interesting the [![Static Badge](https://img.shields.io/badge/CAESar%20repository-blue?style=plastic)](https://github.com/fgt996/CAESar) It contains a collection of approaches for forecasting VaR and ES.
 
