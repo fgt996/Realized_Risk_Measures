@@ -76,6 +76,9 @@ print(res['qr']) #Print the realized VaR
 print(res['er']) #Print the realized ES
 ```
 
+### example_experiment
+```example_experiment.py``` provides an example of a comparison between the different filtering approaches. It is the mould of the experiments carried out in [1]. Note that, according to copyright constraints, we cannot share the data used.
+
 # Bibliography
 [1]: Gatta, F., & Lillo, F., & Mazzarisi, P. (2024). A High-frequency Approach to Risk Measures. TBD.
 
