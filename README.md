@@ -40,6 +40,15 @@ The ```Fill_RTH_Minutes``` function fills the holes and imputes the nan from a D
 
 Finally, ```price2params_ma``` is the same, but it assumes that the subordinated returns follow an MA(1) process, so the first element in every value is the autoregressive coefficient, and the last entries are the t parameters fitted on the innovations series.
 
+### eval_utils
+The ```eval_utils``` module contains some functions used for results evaluation.
+
+Specifically, the class ```AS14_test``` performs the Acerbi-Szekely test with a bootstrap approach for computing the p-value. It inherits the class ```bootstrap_mean_test```.
+
+The ```PinballLoss``` class is used for computing the Pinball loss at a given probability level $`\theta`$ specified in the class initialization.
+
+```barrera_loss``` and ```patton_loss``` are used to compute the Barrera and Patton loss, respectively.
+
 ### models
 
 The ```models``` module is the core of this repository. It contains five classes for filtering the risk measures.
