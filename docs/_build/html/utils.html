@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utils module &mdash; realized_risk_measures 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=8d563738"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="models module" href="models.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            realized_risk_measures
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">realized_risk_measures</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="eval_utils.html">eval_utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html">models module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#utils.Fill_RTH_Minutes"><code class="docutils literal notranslate"><span class="pre">Fill_RTH_Minutes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#utils.IntraSeries_2_DayReturn"><code class="docutils literal notranslate"><span class="pre">IntraSeries_2_DayReturn()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#utils.Subordinator"><code class="docutils literal notranslate"><span class="pre">Subordinator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#utils.Subordinator.predict"><code class="docutils literal notranslate"><span class="pre">Subordinator.predict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#utils.Subordinator.sample_with_tie_break"><code class="docutils literal notranslate"><span class="pre">Subordinator.sample_with_tie_break()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#utils.price2params"><code class="docutils literal notranslate"><span class="pre">price2params()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#utils.price2params_ma"><code class="docutils literal notranslate"><span class="pre">price2params_ma()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">realized_risk_measures</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">realized_risk_measures</a></li>
+      <li class="breadcrumb-item active">utils module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/utils.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-utils">
+<span id="utils-module"></span><h1>utils module<a class="headerlink" href="#module-utils" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.Fill_RTH_Minutes">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">Fill_RTH_Minutes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils.html#Fill_RTH_Minutes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.Fill_RTH_Minutes" title="Link to this definition"></a></dt>
+<dd><p>Data preprocessing. Given a pandas dataframe, it fills missing values in the Regular Trading Hours (RTH) (09:30 - 16:00).
+Only the days where there is at least one observation are used, as they are assumed to be all and only the working days.</p>
+<dl class="simple">
+<dt>INPUTS:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>df: pandas DataFrame,</dt><dd><p>the dataframe, made up of minute-by-minute values</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>OUTPUTS:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>df: pandas DataFrame,</dt><dd><p>the preprocessed dataframe, with no holes and filled missing values.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<section id="example-of-usage">
+<h2>Example of usage<a class="headerlink" href="#example-of-usage" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">Fill_RTH_Minutes</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;stock.csv&#39;</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+<span class="n">df_full</span> <span class="o">=</span> <span class="n">Fill_RTH_Minutes</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="c1">#Data Preprocessing</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.IntraSeries_2_DayReturn">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">IntraSeries_2_DayReturn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">series</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils.html#IntraSeries_2_DayReturn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.IntraSeries_2_DayReturn" title="Link to this definition"></a></dt>
+<dd><p>Computes the day return of a time series representing intraday prices.</p>
+<dl>
+<dt>INPUTS:</dt><dd><ul class="simple">
+<li><p>series: pandas Series,</p></li>
+</ul>
+<p>the time series of intraday prices</p>
+</dd>
+<dt>OUTPUTS:</dt><dd><ul class="simple">
+<li><p>output: numpy array,</p></li>
+</ul>
+<p>the daily log returns</p>
+</dd>
+</dl>
+<section id="id1">
+<h2>Example of usage<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">IntraSeries_2_DayReturn</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;stock.csv&#39;</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+<span class="n">daily_ret</span> <span class="o">=</span> <span class="n">IntraSeries_2_DayReturn</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">Close</span><span class="p">)</span> <span class="c1">#Compute the daily log returns</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="utils.Subordinator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">Subordinator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'clock'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils.html#Subordinator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.Subordinator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Subordinator class. It is intended to be used on each day separately.</p>
+<section id="parameters">
+<h2>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>c: int</dt><dd><p>the number of time indexes to sample</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>sub_type: str, optional</dt><dd><p>Type of subordinator to use. Either ‘clock’ for the clock time; ‘tpv’ for the TriPower Variation;
+‘vol’ for the volume; or ‘identity’ for the identity (that is, all the indexes are returned). Default is ‘clock’</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</section>
+<section id="id2">
+<h2>Example of usage<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">subordinator</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;stock.csv&#39;</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<span class="n">day_price</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Close</span>
+<span class="n">day_vol</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Volume</span>
+
+<span class="n">subordinator</span> <span class="o">=</span> <span class="n">Subordinator</span><span class="p">(</span><span class="mi">78</span><span class="p">,</span> <span class="n">sub_type</span><span class="o">=</span><span class="s1">&#39;vol&#39;</span><span class="p">)</span> <span class="c1">#Initialize the subordinator</span>
+
+<span class="n">target_idxs</span> <span class="o">=</span> <span class="n">day_price</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">subordinator</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">day_price</span><span class="p">,</span> <span class="n">vol</span><span class="o">=</span><span class="n">day_vol</span><span class="p">)]</span> <span class="c1">#Extract the subordinated indexes</span>
+<span class="n">log_ret</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">target_points</span><span class="p">)</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span> <span class="c1">#Compute the subordinated logarithmic returns</span>
+</pre></div>
+</div>
+</section>
+<section id="methods">
+<h2>Methods:<a class="headerlink" href="#methods" title="Link to this heading"></a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="utils.Subordinator.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tpv_int_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils.html#Subordinator.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.Subordinator.predict" title="Link to this definition"></a></dt>
+<dd><p>Returns the index position of the subordinated values. That is, return the vector       au(j), with j=0,..,c, where     au is intended to be the subordinator.</p>
+<dl class="simple">
+<dt>INPUTS:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>data: pd.Series</dt><dd><p>the time series of intra-day prices, over all the day (that is, from 09:30 to 16:00)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>tpv_int_min: int, optional</dt><dd><p>half-length of the window used for computing the tri-power variation. Only used when self.sub_type == ‘tpv’. Default is 15</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>vol: pd.Series, optional</dt><dd><p>the volume series, on the same indexes as data. Only used when self.sub_type == ‘vol’</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>OUTPUTS:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>sub_idxs: list</dt><dd><p>the indexes corresponding to the subordinated values</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="utils.Subordinator.sample_with_tie_break">
+<span class="sig-name descname"><span class="pre">sample_with_tie_break</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils.html#Subordinator.sample_with_tie_break"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.Subordinator.sample_with_tie_break" title="Link to this definition"></a></dt>
+<dd><p>Ensure the sampled time indexes are unique (i.e., not overlapping). That is, it manage the tie-break rule for transofrming a non-injective function into an injective subordinator.</p>
+<dl class="simple">
+<dt>INPUTS:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>a: ndarray</dt><dd><p>the cumulative intensities</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>OUTPUTS:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>indices: ndarray</dt><dd><p>the indexes corresponding to the subordinated values</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.price2params">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">price2params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'clock'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils.html#price2params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.price2params" title="Link to this definition"></a></dt>
+<dd><p>Fit the intra-day distribution, which is assumed to be a Student’s t-distribution</p>
+<dl class="simple">
+<dt>INPUTS:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>y: pandas Series,</dt><dd><p>the price time series, with a minute-by-minute granularity, over all the considered period (e.g., one year of data)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>c: int</dt><dd><p>the number of time indexes to sample</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>mu: float,</dt><dd><p>the intra-day mean. It could be either a float or None. In the latter case, it will be estimated from the data. It is preferable to not set mu=None.
+If you don’t have a reliable estimate for it, simply use 0. Default is 0</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>sub_type: str, optional</dt><dd><p>Type of subordinator to use. Either ‘clock’ for the clock time; ‘tpv’ for the TriPower Variation;
+‘vol’ for the volume; or ‘identity’ for the identity (that is, all the indexes are returned). Default is ‘clock’</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>vol: pd.Series, optional</dt><dd><p>the volume series, on the same indexes as data. Only used when sub_type == ‘vol’</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>OUTPUTS:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>out_pars: dict,</dt><dd><p>the fitted parameters. Every key correspond to a day of the y series. Every value is a list containing nu, mu, sigma.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<section id="id3">
+<h2>Example of usage<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">price2params</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;stock.csv&#39;</span><span class="p">)</span>
+<span class="n">price</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Close</span>
+<span class="n">vol</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Volume</span>
+
+<span class="n">fitted_pars</span> <span class="o">=</span> <span class="n">price2params</span><span class="p">(</span><span class="n">price</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mi">78</span><span class="p">,</span> <span class="n">sub_type</span><span class="o">=</span><span class="s1">&#39;vol&#39;</span><span class="p">,</span> <span class="n">vol</span><span class="o">=</span><span class="n">vol</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.price2params_ma">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">price2params_ma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'clock'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils.html#price2params_ma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.price2params_ma" title="Link to this definition"></a></dt>
+<dd><p>Fit the intra-day distribution, which is assumed to be a MA(1) process with Student’s t innovations.</p>
+<dl class="simple">
+<dt>INPUTS:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>y: pandas Series,</dt><dd><p>the price time series, with a minute-by-minute granularity, over all the considered period (e.g., one year of data)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>c: int</dt><dd><p>the number of time indexes to sample</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>mu: float,</dt><dd><p>the intra-day mean. It could be either a float or None. In the latter case, it will be estimated from the data. It is preferable to not set mu=None.
+If you don’t have a reliable estimate for it, simply use 0. Default is 0</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>sub_type: str, optional</dt><dd><p>Type of subordinator to use. Either ‘clock’ for the clock time; ‘tpv’ for the TriPower Variation;
+‘vol’ for the volume; or ‘identity’ for the identity (that is, all the indexes are returned). Default is ‘clock’</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>vol: pd.Series, optional</dt><dd><p>the volume series, on the same indexes as data. Only used when sub_type == ‘vol’</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+<dt>OUTPUTS:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>out_pars: dict,</dt><dd><p>the fitted parameters. Every key correspond to a day of the y series. Every value is a list containing nu, mu, sigma.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<section id="id4">
+<h2>Example of usage<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">price2params_ma</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;stock.csv&#39;</span><span class="p">)</span>
+<span class="n">price</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Close</span>
+<span class="n">vol</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Volume</span>
+
+<span class="n">fitted_pars</span> <span class="o">=</span> <span class="n">price2params_ma</span><span class="p">(</span><span class="n">price</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mi">39</span><span class="p">,</span> <span class="n">sub_type</span><span class="o">=</span><span class="s1">&#39;vol&#39;</span><span class="p">,</span> <span class="n">vol</span><span class="o">=</span><span class="n">vol</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="models.html" class="btn btn-neutral float-left" title="models module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Federico Gatta.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
