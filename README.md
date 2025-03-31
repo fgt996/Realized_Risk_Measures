@@ -77,7 +77,10 @@ print(res['er']) #Print the realized ES
 ```
 
 ### example_experiment
-```example_experiment.py``` provides an example of a comparison between the different filtering approaches. It is the mould of the experiments carried out in [1] and contains all steps from the data loading to the results visualization. Note that, according to copyright constraints, we cannot share the data used.
+```example_experiment.py``` provides an example of a comparison between the different filtering approaches. It is the mould of the experiments carried out in [1]. Note that, according to copyright constraints, we cannot share the data used.
+
+### example_evaluation
+```example_evaluation.py``` provides an example of a evaluation of the results. It takes as input the output from ```example_experiment.py```. It contains both the code for the in-sample and the out-of-sample evaluations. The former comprises computing the hits frequency and performing the Acerbi-Szekely test for validating the pair (VaR, ES). The latter consists of computing the Barrera and Patton loss functions associated with the forecasts obtained from the realized risk measures time series. Such forecasts are computed either with an AutoRegressive, Exponentially Weighted, or Random Walk model.
 
 # Bibliography
 [1]: Gatta, F., & Lillo, F., & Mazzarisi, P. (2024). A High-frequency Approach to Risk Measures. TBD.
