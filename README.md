@@ -1,5 +1,7 @@
 # Realized Risk Measures
 
+[![Static Badge](https://img.shields.io/badge/Documentation-blue?logo=github&labelColor=black)
+](https://fgt996.github.io/Realized_Risk_Measures)
 
 # Motivation
 
