@@ -94,7 +94,7 @@ print(res['er']) #Print the realized ES
 ```example_evaluation.py``` provides an example of a evaluation of the results. It takes as input the output from ```example_experiment.py```. It contains both the code for the in-sample and the out-of-sample evaluations. The former comprises computing the hits frequency and performing the Acerbi-Szekely test for validating the pair (VaR, ES). The latter consists of computing the Barrera and Patton loss functions associated with the forecasts obtained from the realized risk measures time series. Such forecasts are computed either with an AutoRegressive, Exponentially Weighted, or Random Walk model.
 
 # Bibliography
-[1]: Gatta, F., & Lillo, F., & Mazzarisi, P. (2024). A High-frequency Approach to Risk Measures. TBD.
+[1]: Gatta, F., Lillo, F., & Mazzarisi, P. (2025). A high-frequency approach to Realized Risk Measures. arXiv preprint arXiv:2510.16526.
 
 [2]: Dimitriadis, T., & Halbleib, R. (2022). Realized quantiles. Journal of Business & Economic Statistics, 40(3), 1346-1361.
 
