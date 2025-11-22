@@ -58,13 +58,9 @@ The ```PinballLoss``` class is used for computing the Pinball loss at a given pr
 
 The ```models``` module is the core of this repository. It contains five classes for filtering the risk measures.
 
-```MC_RealizedRisk``` is one of the filtering approaches proposed in [1]. It is based on the assumption of iid subordinated returns following the t-distribution. The Monte-Carlo approach is used to recover the low-frequency risk measures.
-
-```MC_RealizedRisk_MA```is another approach proposed in [1]. It is the same as ```MC_RealizedRisk```, but the subordinated returns are assumed to follow an MA(1) process.
+```MC_RealizedRisk``` is one of the filtering approaches proposed in [1]. According to the boolean parameter ma, it could be based either on the assumption of iid subordinated returns following the t-distribution or MA(1) returns with t-distributed innovations. The Monte-Carlo approach is used to recover the low-frequency risk measures.
 
 ```Ch_RealizedRisk``` is similar to ```MC_RealizedRisk```, but it exploits an approach based on the high-frequency characteristic function to obtain the low-frequency risk measures.
-
-```Ch_RealizedRisk_MA``` is the same of ```MC_RealizedRisk_MA```, but it is based on the characteristic function.
 
 ```DH_RealizedRisk``` is the approach proposed in [2]. It is based on the assumption of self-similarity of the subordinated logarithmic price process.
 
