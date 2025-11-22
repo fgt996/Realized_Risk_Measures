@@ -1,5 +1,8 @@
 # Realized Risk Measures
 
+[![Static Badge](https://img.shields.io/badge/Realized_Risk_Measures%20Paper%20Arxiv-red?style=plastic)
+](https://arxiv.org/abs/2510.16526)
+
 [![Static Badge](https://img.shields.io/badge/Documentation-blue?logo=github&labelColor=black)
 ](https://fgt996.github.io/Realized_Risk_Measures)
 
