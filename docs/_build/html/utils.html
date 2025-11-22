@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>utils module &mdash; realized_risk_measures 1.0.0 documentation</title>
@@ -53,11 +53,9 @@
 <li class="toctree-l3"><a class="reference internal" href="#utils.IntraSeries_2_DayReturn"><code class="docutils literal notranslate"><span class="pre">IntraSeries_2_DayReturn()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#utils.Subordinator"><code class="docutils literal notranslate"><span class="pre">Subordinator</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#utils.Subordinator.predict"><code class="docutils literal notranslate"><span class="pre">Subordinator.predict()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#utils.Subordinator.sample_with_tie_break"><code class="docutils literal notranslate"><span class="pre">Subordinator.sample_with_tie_break()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#utils.price2params"><code class="docutils literal notranslate"><span class="pre">price2params()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#utils.price2params_ma"><code class="docutils literal notranslate"><span class="pre">price2params_ma()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -235,36 +233,12 @@ Only the days where there is at least one observation are used, as they are assu
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="utils.Subordinator.sample_with_tie_break">
-<span class="sig-name descname"><span class="pre">sample_with_tie_break</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils.html#Subordinator.sample_with_tie_break"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.Subordinator.sample_with_tie_break" title="Link to this definition"></a></dt>
-<dd><p>Ensure the sampled time indexes are unique (i.e., not overlapping). That is, it manage the tie-break rule for transofrming a non-injective function into an injective subordinator.</p>
-<dl class="simple">
-<dt>INPUTS:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>a: ndarray</dt><dd><p>the cumulative intensities</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-<dt>OUTPUTS:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>indices: ndarray</dt><dd><p>the indexes corresponding to the subordinated values</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="utils.price2params">
-<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">price2params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'clock'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils.html#price2params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.price2params" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">price2params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_prior</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'clock'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hist_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils.html#price2params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.price2params" title="Link to this definition"></a></dt>
 <dd><p>Fit the intra-day distribution, which is assumed to be a Student’s t-distribution</p>
 <dl class="simple">
 <dt>INPUTS:</dt><dd><ul class="simple">
@@ -279,8 +253,11 @@ Only the days where there is at least one observation are used, as they are assu
 </dl>
 </li>
 <li><dl class="simple">
-<dt>mu: float,</dt><dd><p>the intra-day mean. It could be either a float or None. In the latter case, it will be estimated from the data. It is preferable to not set mu=None.
-If you don’t have a reliable estimate for it, simply use 0. Default is 0</p>
+<dt>mu_prior: float, optional</dt><dd><p>the prior of the intra-day mean.
+If mu_prior is &gt; 0, the prior is EWMA with smoothing parameter equals to mu_prior.
+If mu_prior is 0, then the prior mean = constant = 0 is used.
+If mu_prior is None, then no prior is used and mu is fitted to the data, as the other distribution parameters.
+Default is 0</p>
 </dd>
 </dl>
 </li>
@@ -292,6 +269,16 @@ If you don’t have a reliable estimate for it, simply use 0. Default is 0</p>
 </li>
 <li><dl class="simple">
 <dt>vol: pd.Series, optional</dt><dd><p>the volume series, on the same indexes as data. Only used when sub_type == ‘vol’</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>ma: bool, optional</dt><dd><p>Whether the returns are assumed to follow an MA(1) process. If False, returns are assumed to be iid. Default is False.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>hist_mean: bool, optional</dt><dd><p>Historical mean to use as starting point for computing the EWMA prior of the mean. Only needed when mu_prior &gt; 0.</p>
 </dd>
 </dl>
 </li>
@@ -315,66 +302,7 @@ If you don’t have a reliable estimate for it, simply use 0. Default is 0</p>
 <span class="n">price</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Close</span>
 <span class="n">vol</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Volume</span>
 
-<span class="n">fitted_pars</span> <span class="o">=</span> <span class="n">price2params</span><span class="p">(</span><span class="n">price</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mi">78</span><span class="p">,</span> <span class="n">sub_type</span><span class="o">=</span><span class="s1">&#39;vol&#39;</span><span class="p">,</span> <span class="n">vol</span><span class="o">=</span><span class="n">vol</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="utils.price2params_ma">
-<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">price2params_ma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'clock'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils.html#price2params_ma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.price2params_ma" title="Link to this definition"></a></dt>
-<dd><p>Fit the intra-day distribution, which is assumed to be a MA(1) process with Student’s t innovations.</p>
-<dl class="simple">
-<dt>INPUTS:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>y: pandas Series,</dt><dd><p>the price time series, with a minute-by-minute granularity, over all the considered period (e.g., one year of data)</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>c: int</dt><dd><p>the number of time indexes to sample</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>mu: float,</dt><dd><p>the intra-day mean. It could be either a float or None. In the latter case, it will be estimated from the data. It is preferable to not set mu=None.
-If you don’t have a reliable estimate for it, simply use 0. Default is 0</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>sub_type: str, optional</dt><dd><p>Type of subordinator to use. Either ‘clock’ for the clock time; ‘tpv’ for the TriPower Variation;
-‘vol’ for the volume; or ‘identity’ for the identity (that is, all the indexes are returned). Default is ‘clock’</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>vol: pd.Series, optional</dt><dd><p>the volume series, on the same indexes as data. Only used when sub_type == ‘vol’</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-<dt>OUTPUTS:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>out_pars: dict,</dt><dd><p>the fitted parameters. Every key correspond to a day of the y series. Every value is a list containing nu, mu, sigma.</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-<section id="id4">
-<h2>Example of usage<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">price2params_ma</span>
-
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;stock.csv&#39;</span><span class="p">)</span>
-<span class="n">price</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Close</span>
-<span class="n">vol</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Volume</span>
-
-<span class="n">fitted_pars</span> <span class="o">=</span> <span class="n">price2params_ma</span><span class="p">(</span><span class="n">price</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mi">39</span><span class="p">,</span> <span class="n">sub_type</span><span class="o">=</span><span class="s1">&#39;vol&#39;</span><span class="p">,</span> <span class="n">vol</span><span class="o">=</span><span class="n">vol</span><span class="p">)</span>
+<span class="n">fitted_pars</span> <span class="o">=</span> <span class="n">price2params</span><span class="p">(</span><span class="n">price</span><span class="p">,</span> <span class="n">mu_prior</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mi">78</span><span class="p">,</span> <span class="n">sub_type</span><span class="o">=</span><span class="s1">&#39;vol&#39;</span><span class="p">,</span> <span class="n">vol</span><span class="o">=</span><span class="n">vol</span><span class="p">,</span> <span class="n">hist_mean</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
