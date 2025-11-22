@@ -52,7 +52,7 @@ Specifically, the class ```AS14_test``` performs the Acerbi-Szekely test with a 
 
 The ```PinballLoss``` class is used for computing the Pinball loss at a given probability level $`\theta`$ specified in the class initialization.
 
-```barrera_loss``` and ```patton_loss``` are used to compute the Barrera and Patton loss, respectively.
+```joint_loss``` is used to compute the joint VaR-ES loss.
 
 ### models
 
