@@ -60,54 +60,37 @@ class PinballLoss():
             loss = np.nanmean(loss)
         return loss
 
-class barrera_loss():
+class joint_loss():
     '''
-    Barrera loss function
-    '''
-    def __init__(self, theta, ret_mean=True):
-        '''
-        INPUT:
-        - theta: float,
-            the threshold for the loss function
-        - ret_mean: bool,
-            if True, the function returns the mean of the loss. Default is True
-        '''
-        self.theta = theta
-        self.ret_mean = ret_mean
-    
-    def __call__(self, v_, e_, y_):
-        '''
-        INPUT:
-        - v_: numpy array,
-            the quantile estimate
-        - e_: numpy array,
-            the expected shortfall estimate
-        - y_: numpy array,
-            the actual time series
-        OUTPUT:
-        - loss: float,
-            the loss function mean value, if ret_mean is True. Otherwise, the loss for each observation
-        '''
-        v, e, y = v_.flatten(), e_.flatten(), y_.flatten()
-        r = e - v #Barrera loss is computed on the difference ES - VaR
-        if self.ret_mean: #If true, return the mean of the loss
-            loss = np.nanmean( (r - np.where(y<v, (y-v)/self.theta, 0))**2 )
-        else: #Otherwise, return the loss for each observation
-            loss = (r - np.where(y<v, (y-v)/self.theta, 0))**2
-        return loss
+    Joint VaR-ES loss function -see Eq. (6) in:
 
-class patton_loss():
-    '''
-    Patton loss function
+    Patton, A. J., Ziegel, J. F., & Chen, R. (2019). Dynamic semiparametric models for expected shortfall (and value-at-risk). Journal of econometrics, 211(2), 388-413.
+
+    Parameters:
+    ----------------
+        - theta: float
+            the target confidence level
+        - ret_mean: bool, optional
+            if True, the function returns the mean of the loss, otherwise the loss point-by-point. Default is True
+
+    Example of usage
+    ----------------
+    .. code-block:: python
+
+        import numpy as np
+        from eval_utils import joint_loss
+
+        y = np.random.randn(250)*1e-2  #Replace with price returns
+        qf = np.random.uniform(-1, 0, 250)  #Replace with quantile forecasts
+        ef = np.random.uniform(-1, 0, 250)  #Replace with expected shortfall forecasts
+        theta = 0.05 #Set the desired confidence level
+
+        losses = joint_loss(theta, ret_mean=False)(qf, ef, y) #Compute the patton loss
+    
+    Methods:
+    ----------------
     '''
     def __init__(self, theta, ret_mean=True):
-        '''
-        INPUT:
-        - theta: float,
-            the threshold for the loss function
-        - ret_mean: bool,
-            if True, the function returns the mean of the loss. Default is True
-        '''
         self.theta = theta
         self.ret_mean = ret_mean
     
@@ -145,6 +128,8 @@ class bootstrap_mean_test():
                 if True, the test is one sided (i.e. H0: mu >= mu_target), otherwise it is two-sided (i.e. H0: mu == mu_target). Default is False
             - n_boot: int, optional
                 the number of bootstrap replications. Default is 10_000
+
+    :meta private:
     '''
     def __init__(self, mu_target, one_side=False, n_boot=10_000):
         self.mu_target = mu_target

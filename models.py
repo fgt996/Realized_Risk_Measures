@@ -106,6 +106,8 @@ def _custom_brentq(target_fun, a, x0, tol=1e-8, max_it=10):
     OUTPUTS:
         - zero: float,
             the root of the function.
+    
+    :meta private:
     '''
     from scipy.optimize import brentq #Load the brentq function
 
@@ -172,10 +174,10 @@ def _custom_brentq(target_fun, a, x0, tol=1e-8, max_it=10):
 
 class Ch_RealizedRisk():
     '''
-    Filtering approach proposed in [1]. It is based on the assumption of iid subordinated returns following the t-distribution.
-    The characteristic function approach is used to recover the low-frequency risk measures.
+    Filtering approach proposed in [1]. 
+    The characteristic function approach is used to recover the low-frequency risk measures from the high-frequency distribution (Student's t) parameters.
 
-    [1]: Gatta, F., & Lillo, F., & Mazzarisi, P. (2024). A High-frequency Approach to Risk Measures. TBD.
+    [1]: Gatta, F., Lillo, F., & Mazzarisi, P. (2025). A high-frequency approach to Realized Risk Measures. arXiv preprint arXiv:2510.16526.
 
     Parameters:
     ----------------
@@ -183,6 +185,8 @@ class Ch_RealizedRisk():
             the target probability level.
         - n_points: int, optional
             Number of points used to evaluate the ES (which is computed as the average of equi-spaced quantile estimates at probability levels theta_j <= theta). Default is 8.
+        - ma: bool, optional
+            Whether the returns are assumed to follow an MA(1) process. If False, returns are assumed to be iid. Default is False.
 
     Example of usage
     ----------------
@@ -205,11 +209,12 @@ class Ch_RealizedRisk():
     Methods:
     ----------------
     '''
-    def __init__(self, theta, n_points=8):
+    def __init__(self, theta, n_points=8, ma=False):
         self.theta = theta
         self.points = np.linspace(0, theta, n_points+1, endpoint=True)[1:]
+        self.ma = ma
 
-    def quantile_from_cf_wrapper(self, theta, nu, mu, scale, pipend):
+    def _quantile_from_cf_wrapper_iid(self, theta, nu, mu, scale, pipend):
         '''
         Compute the daily risk measures from the high-frequency characteristic function, by using the Gil-Pelaez formula.
         The intra-day returns are assumed to be iid, t-distributed with 0 mean. The routine is used in the multiprocessing framework.
@@ -225,6 +230,8 @@ class Ch_RealizedRisk():
                 the scale parameter of the t-distribution.
             - pipend: multiprocessing.Pipe
                 The pipe to communicate the result to the main process.
+
+        :meta private:
         '''
         from scipy.integrate import quad #Load the quadrature function
         from scipy.optimize import minimize #Load function for minimization
@@ -263,104 +270,11 @@ class Ch_RealizedRisk():
             if not temp_out.success:
                 temp_out.x = [np.nan]
             pipend.send(temp_out.x[0])
-    
-    def fit(self, c, internal_state, jobs=1):
-        '''
-        Map the t-distribution parameters into the low-frequency risk measures.
 
-        INPUTS:
-            - c: int
-                the number of time indexes to sample.
-            - internal_state: dict
-                the fitted t-distribution parameters. Every key correspond to a day.
-                Every value is assumed to be a list [degrees of freedom, location, scale].
-            - jobs: int, optional
-                Number of simultaneous processes to run. Default is 1.
-
-        OUTPUTS:
-            - qf: dict
-                the filtered VaR. It has the same keys as internal_state.
-            - ef: dict
-                the filtered ES. It has the same keys as internal_state.
-        '''
-        import multiprocessing as mp #Load the multiprocessing module
-
-        self.exp = c #Set the exponent for the characteristic function
-
-        qf, ef = dict(), dict() #Initialize the dictionaries to store the daily values
-        for day in internal_state.keys(): #Iterate over the days
-            fitting_out = internal_state[day] #Get the fitting output for the day
-            qf_list = list() # Initialize the list of quantile forecasts at different levels theta_j
-
-            # Compute quantile in the inner theta_j
-            for q_start in range(0, len(self.points), jobs): #Iterate over the theta_j
-                # Create and start worker processes
-                workers = list() # Initialize the list of workers
-                end_point = np.min([q_start+jobs, len(self.points)]) # Define the end point of the iteration
-                
-                for theta_j in self.points[q_start:end_point]: # Iterate over theta_j
-                    parent_pipend, child_pipend = mp.Pipe() # Create a pipe to communicate with the worker
-                    worker = mp.Process(
-                        target=self.quantile_from_cf_wrapper,
-                        args=(theta_j, fitting_out[0], fitting_out[1],
-                              fitting_out[2], child_pipend)) # Define the worker
-                    workers.append([worker, parent_pipend]) # Append the worker to the list
-                    worker.start() # Start the worker
-
-                # Gather results from workers
-                for worker, parent_pipend in workers:
-                    q_emp = parent_pipend.recv() # Get the result from the worker
-                    worker.join() # Wait for the worker to finish
-                    qf_list.append(q_emp)
-
-            qf[day] = qf_list[-1] #The VaR forecast is the last element of the list
-            ef[day] = np.nanmean(qf_list) #The ES forecast is the average of the elements in the list
-
-        return qf, ef
-
-class Ch_RealizedRisk_MA():
-    '''
-    Filtering approach proposed in [1]. It is based on the assumption of MA(1) subordinated returns with t-distributed innovations.
-    The characteristic function approach is used to recover the low-frequency risk measures.
-
-    [1]: Gatta, F., & Lillo, F., & Mazzarisi, P. (2024). A High-frequency Approach to Risk Measures. TBD.
-
-    Parameters:
-    ----------------
-        - theta: float
-            the target probability level.
-        - n_points: int, optional
-            Number of points used to evaluate the ES (which is computed as the average of equi-spaced quantile estimates at probability levels theta_j <= theta). Default is 8.
-
-    Example of usage
-    ----------------
-    .. code-block:: python
-
-        import numpy as np
-        import pandas as pd
-        from utils import price2params_ma
-        from models import Ch_RealizedRisk_MA
-
-        df = pd.read_csv('stock.csv')
-        df.index = pd.to_datetime(df.index)
-        price = df.Close
-
-        fitted_pars = price2params_ma(price, c=78, sub_type='tpv') #Fit the t-distribution parameters
-
-        mdl = Ch_RealizedRisk_MA(0.05) #Initialize the model
-        qf, ef = mdl.fit(78, fitted_pars, jobs=4) #Run to obtain the filtered VaR and ES
-    
-    Methods:
-    ----------------
-    '''
-    def __init__(self, theta, n_points=8):
-        self.theta = theta
-        self.points = np.linspace(0, theta, n_points+1, endpoint=True)[1:]
-
-    def quantile_from_cf_wrapper(self, theta, phi, nu, mu, scale, pipend):
+    def _quantile_from_cf_wrapper_ma(self, theta, phi, nu, mu, scale, pipend):
         '''
         Compute the daily risk measures from the high-frequency characteristic function, by using the Gil-Pelaez formula.
-        The intra-day returns are assumed to be iid, t-distributed with 0 mean. The routine is used in the multiprocessing framework.
+        The intra-day returns are follow an MA process whose innovations are t-distributed with 0 mean. The routine is used in the multiprocessing framework.
 
         INPUTS:
             - theta: float
@@ -375,6 +289,8 @@ class Ch_RealizedRisk_MA():
                 the scale parameter of the t-distribution.
             - pipend: multiprocessing.Pipe
                 The pipe to communicate the result to the main process.
+
+        :meta private:
         '''
         from scipy.integrate import quad #Load the quadrature function
         from scipy.optimize import minimize #Load function for minimization
@@ -427,7 +343,7 @@ class Ch_RealizedRisk_MA():
                 the number of time indexes to sample.
             - internal_state: dict
                 the fitted t-distribution parameters. Every key correspond to a day.
-                Every value is assumed to be a list [autoregressive parameter, degrees of freedom, location, scale].
+                Every value is assumed to be a list [degrees of freedom, location, scale].
             - jobs: int, optional
                 Number of simultaneous processes to run. Default is 1.
 
@@ -439,7 +355,11 @@ class Ch_RealizedRisk_MA():
         '''
         import multiprocessing as mp #Load the multiprocessing module
 
-        self.exp = c-1 #Set the exponent for the characteristic function
+        # Set the exponent for the characteristic function
+        if self.ma:
+            self.exp = c
+        else:
+            self.exp = c-1
 
         qf, ef = dict(), dict() #Initialize the dictionaries to store the daily values
         for day in internal_state.keys(): #Iterate over the days
@@ -447,17 +367,24 @@ class Ch_RealizedRisk_MA():
             qf_list = list() # Initialize the list of quantile forecasts at different levels theta_j
 
             # Compute quantile in the inner theta_j
-            for q_start in range(0, len(self.points), jobs):
+            for q_start in range(0, len(self.points), jobs): #Iterate over the theta_j
                 # Create and start worker processes
                 workers = list() # Initialize the list of workers
                 end_point = np.min([q_start+jobs, len(self.points)]) # Define the end point of the iteration
                 
                 for theta_j in self.points[q_start:end_point]: # Iterate over theta_j
                     parent_pipend, child_pipend = mp.Pipe() # Create a pipe to communicate with the worker
-                    worker = mp.Process(
-                        target=self.quantile_from_cf_wrapper,
-                        args=(theta_j, fitting_out[0], fitting_out[1],
-                              fitting_out[2], fitting_out[3], child_pipend)) # Define the worker
+                    # Define the worker
+                    if self.ma:
+                        worker = mp.Process(
+                            target=self._quantile_from_cf_wrapper_ma,
+                            args=(theta_j, fitting_out[0], fitting_out[1],
+                                fitting_out[2], fitting_out[3], child_pipend))
+                    else:
+                        worker = mp.Process(
+                            target=self._quantile_from_cf_wrapper_iid,
+                            args=(theta_j, *fitting_out[0], fitting_out[1],
+                                fitting_out[2], child_pipend)) 
                     workers.append([worker, parent_pipend]) # Append the worker to the list
                     worker.start() # Start the worker
 
@@ -467,22 +394,24 @@ class Ch_RealizedRisk_MA():
                     worker.join() # Wait for the worker to finish
                     qf_list.append(q_emp)
 
-            qf[day] = qf_list[-1]
-            ef[day] = np.nanmean(qf_list)
+            qf[day] = qf_list[-1] #The VaR forecast is the last element of the list
+            ef[day] = np.nanmean(qf_list) #The ES forecast is the average of the elements in the list
 
         return qf, ef
 
 class MC_RealizedRisk():
     '''
-    Filtering approach proposed in [1]. It is based on the assumption of iid subordinated returns following the t-distribution.
-    The Monte-Carlo approach is used to recover the low-frequency risk measures.
+    Filtering approach proposed in [1].
+    The Monte-Carlo approach is used to recover the low-frequency risk measures from the high-frequency distribution (Student's t) parameters.
 
-    [1]: Gatta, F., & Lillo, F., & Mazzarisi, P. (2024). A High-frequency Approach to Risk Measures. TBD.
+    [1]: Gatta, F., Lillo, F., & Mazzarisi, P. (2025). A high-frequency approach to Realized Risk Measures. arXiv preprint arXiv:2510.16526.
 
     Parameters:
     ----------------
         - theta: float or list
             the target probability level, or a list of target probability levels.
+        - ma: bool, optional
+            Whether the returns are assumed to follow an MA(1) process. If False, returns are assumed to be iid. Default is False.
 
     Example of usage
     ----------------
@@ -505,12 +434,14 @@ class MC_RealizedRisk():
     Methods:
     ----------------
     '''
-    def __init__(self, theta):
+    def __init__(self, theta, ma=False):
         self.theta = theta
+        self.ma = ma
     
-    def simulate_iid(self, N, c, nu, mu, sigma, ant_v=True, seed=None):
+    def _simulate_iid(self, N, c, nu, mu, sigma, ant_v=True, seed=None):
         '''
         Monte-Carlo simulation for extracting the distribution of the low-frequency return.
+        Returns are assumed to be iid.
 
         INPUTS:
             - N: int
@@ -531,6 +462,8 @@ class MC_RealizedRisk():
         OUTPUTS:
             - samples: ndarray
                 the simulated low-frequency returns.
+
+        :meta private:
         '''
         from scipy.stats import t as stud_t #Load the Student's t-distribution
 
@@ -543,98 +476,10 @@ class MC_RealizedRisk():
             samples = out.sum(axis=1)
         return samples
     
-    def fit(self, N, c, internal_state, ant_v=True, seed=None):
-        '''
-        Map the t-distribution parameters into the low-frequency risk measures.
-
-        INPUTS:
-            - N: int
-                the number of Monte-Carlo paths to simulate (if ant_v==True, the number is doubled).
-            - c: int
-                the number of time indexes to sample.
-            - internal_state: dict
-                the fitted t-distribution parameters. Every key correspond to a day.
-                Every value is assumed to be a list [degrees of freedom, location, scale].
-            - ant_v: bool, optional
-                Flag to indicate if the antithetic variates should be used. Default is True.
-            - seed: int, optional
-                Seed for the random number generator. Default is None.
-
-        OUTPUTS:
-            - qf: dict
-                the filtered VaR. If self.theta is a float, it has the same keys as internal_state.
-                If self.theta is a list, it has a key for every element in the list.
-                Every value is a dict itself with the same keys as internal_state.
-            - ef: dict
-                the filtered ES. If self.theta is a float, it has the same keys as internal_state.
-                If self.theta is a list, it has a key for every element in the list.
-                Every value is a dict itself with the same keys as internal_state.
-        '''
-        # Initialize the dictionaries to store the daily values
-        qf, ef = dict(), dict()
-        if isinstance(self.theta, list):
-            for theta in self.theta:
-                qf[theta], ef[theta] = dict(), dict()
-
-        for temp_key in internal_state.keys(): #Iterate over the days
-            # Simulate the low-frequency returns
-            temp_coeff = internal_state[temp_key]
-            sim_data = self.simulate_iid(
-                N, c, *temp_coeff, ant_v=ant_v, seed=seed)
-
-            if isinstance(self.theta, list):
-                for theta in self.theta: #Iterate over the target probability levels
-                    q_val_temp = np.quantile(sim_data, theta) #Compute the VaR
-                    qf[theta][temp_key] = q_val_temp
-                    ef[theta][temp_key] =\
-                        sim_data[ sim_data <= q_val_temp ].mean() #Compute the ES
-            else:
-                q_val_temp = np.quantile(sim_data, self.theta) #Compute the VaR
-                qf[temp_key] = q_val_temp
-                ef[temp_key] =\
-                    sim_data[ sim_data <= q_val_temp ].mean() #Compute the ES
-
-        return qf, ef
-
-class MC_RealizedRisk_MA():
-    '''
-    Filtering approach proposed in [1]. It is based on the assumption of MA(1) subordinated returns with t-distributed innovations.
-    The Monte-Carlo approach is used to recover the low-frequency risk measures.
-
-    [1]: Gatta, F., & Lillo, F., & Mazzarisi, P. (2024). A High-frequency Approach to Risk Measures. TBD.
-
-    Parameters:
-    ----------------
-        - theta: float or list
-            the target probability level, or a list of target probability levels.
-
-    Example of usage
-    ----------------
-    .. code-block:: python
-
-        import numpy as np
-        import pandas as pd
-        from utils import price2params_ma
-        from models import MC_RealizedRisk_MA
-
-        df = pd.read_csv('stock.csv')
-        df.index = pd.to_datetime(df.index)
-        price = df.Close
-
-        fitted_pars = price2params_ma(price, c=78, sub_type='tpv') #Fit the t-distribution parameters
-
-        mdl = MC_RealizedRisk_MA([0.05, 0.025]) #Initialize the model
-        qf, ef = mdl.fit(78, fitted_pars) #Run to obtain the filtered VaR and ES
-    
-    Methods:
-    ----------------
-    '''
-    def __init__(self, theta):
-        self.theta = theta
-    
-    def simulate_ma(self, N, c, phi, nu, mu, sigma, ant_v=True, seed=None):
+    def _simulate_ma(self, N, c, phi, nu, mu, sigma, ant_v=True, seed=None):
         '''
         Monte-Carlo simulation for extracting the distribution of the low-frequency return.
+        Returns are assumed to follow an MA(1) process.
 
         INPUTS:
             - N: int
@@ -657,6 +502,8 @@ class MC_RealizedRisk_MA():
         OUTPUTS:
             - samples: ndarray
                 the simulated low-frequency returns.
+
+        :meta private:
         '''
         from scipy.stats import t as stud_t #Load the Student's t-distribution
 
@@ -704,8 +551,12 @@ class MC_RealizedRisk_MA():
         for temp_key in internal_state.keys(): #Iterate over the days
             # Simulate the low-frequency returns
             temp_coeff = internal_state[temp_key]
-            sim_data = self.simulate_ma(
-                N, c, *temp_coeff, ant_v=ant_v, seed=seed)
+            if self.ma:
+                sim_data = self._simulate_ma(
+                    N, c, *temp_coeff, ant_v=ant_v, seed=seed)
+            else:
+                sim_data = self._simulate_iid(
+                    N, c, *temp_coeff, ant_v=ant_v, seed=seed)
 
             if isinstance(self.theta, list):
                 for theta in self.theta: #Iterate over the target probability levels

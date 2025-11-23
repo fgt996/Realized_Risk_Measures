@@ -85,6 +85,8 @@ class Subordinator():
         OUTPUTS:
             - indices: ndarray
                 the indexes corresponding to the subordinated values
+        
+        :meta private:
         '''
         indices = np.searchsorted(
             a, np.linspace(0, a[-1], self.c-1), side='left') # Initialize an attempt of indices
@@ -212,7 +214,69 @@ def Fill_RTH_Minutes(df):
 
     return df
 
-def price2params(y, c, mu=0., sub_type='clock', vol=None):
+def price2params(y, c, mu_prior=0, sub_type='clock', vol=None, ma=False, hist_mean=None):
+    '''
+    Fit the intra-day distribution, which is assumed to be a Student's t-distribution
+
+    INPUTS:
+        - y: pandas Series,
+            the price time series, with a minute-by-minute granularity, over all the considered period (e.g., one year of data)
+        - c: int
+            the number of time indexes to sample
+        - mu_prior: float, optional
+            the prior of the intra-day mean.
+            If mu_prior is > 0, the prior is EWMA with smoothing parameter equals to mu_prior.
+            If mu_prior is 0, then the prior mean = constant = 0 is used.
+            If mu_prior is None, then no prior is used and mu is fitted to the data, as the other distribution parameters.
+            Default is 0
+        - sub_type: str, optional
+            Type of subordinator to use. Either 'clock' for the clock time; 'tpv' for the TriPower Variation;
+            'vol' for the volume; or 'identity' for the identity (that is, all the indexes are returned). Default is 'clock'
+        - vol: pd.Series, optional
+            the volume series, on the same indexes as data. Only used when sub_type == 'vol'
+        - ma: bool, optional
+            Whether the returns are assumed to follow an MA(1) process. If False, returns are assumed to be iid. Default is False.
+        - hist_mean: bool, optional
+            Historical mean to use as starting point for computing the EWMA prior of the mean. Only needed when mu_prior > 0.
+
+    OUTPUTS:
+        - out_pars: dict,
+            the fitted parameters. Every key correspond to a day of the y series. Every value is a list containing nu, mu, sigma.
+
+    Example of usage
+    ----------------
+    .. code-block:: python
+
+        import pandas as pd
+        from utils import price2params
+
+        df = pd.read_csv('stock.csv')
+        price = df.Close
+        vol = df.Volume
+
+        fitted_pars = price2params(price, mu_prior=1/3, c=78, sub_type='vol', vol=vol, hist_mean=0)
+    '''
+    if isinstance(mu_prior, type(None)):
+        if ma:
+            _price2params_ma(y, c, mu=mu_prior, sub_type=sub_type, vol=vol)
+        else:
+            return _price2params_iid(y, c, mu=mu_prior, sub_type=sub_type, vol=vol)
+    else:
+        if mu_prior > 0:
+            if ma:
+                _price2params_ma_EWMA(
+                    y, c, mu=hist_mean, smooth_par=mu_prior, sub_type=sub_type, vol=vol)
+            else:
+                _price2params_iid_EWMA(
+                    y, c, mu=hist_mean, smooth_par=mu_prior, sub_type=sub_type, vol=vol)
+        else:
+            if ma:
+                _price2params_ma(y, c, mu=mu_prior, sub_type=sub_type, vol=vol)
+            else:
+                return _price2params_iid(y, c, mu=mu_prior, sub_type=sub_type, vol=vol)
+        
+
+def _price2params_iid(y, c, mu=0., sub_type='clock', vol=None):
     '''
     Fit the intra-day distribution, which is assumed to be a Student's t-distribution
 
@@ -246,6 +310,8 @@ def price2params(y, c, mu=0., sub_type='clock', vol=None):
         vol = df.Volume
 
         fitted_pars = price2params(price, c=78, sub_type='vol', vol=vol)
+
+    :meta private:
     '''
     from scipy.stats import t as stud_t #Load the Student's t-distribution
 
@@ -283,7 +349,91 @@ def price2params(y, c, mu=0., sub_type='clock', vol=None):
 
     return out_pars
 
-def price2params_ma(y, c, mu=0, sub_type='clock', vol=None):
+def _price2params_iid_EWMA(y, c, mu=0., smooth_par=0.9, sub_type='clock', vol=None):
+    '''
+    Fit the intra-day distribution, which is assumed to be a Student's t-distribution.
+    The mean is updated according to an EWMA.
+
+    INPUTS:
+        - y: pandas Series,
+            the price time series, with a minute-by-minute granularity, over all the considered period (e.g., one year of data)
+        - c: int
+            the number of time indexes to sample
+        - mu: float, optional
+            the intra-day mean. It could be either a float or None. In the latter case, it will be estimated from the data. It is preferable to not set mu=None.
+            If you don't have a reliable estimate for it, simply use 0. Default is 0
+        - smooth_par: float, optional
+            the smoothing parameter for the EWMA. Default is 0.9
+        - sub_type: str, optional
+            Type of subordinator to use. Either 'clock' for the clock time; 'tpv' for the TriPower Variation;
+            'vol' for the volume; or 'identity' for the identity (that is, all the indexes are returned). Default is 'clock'
+        - vol: pd.Series, optional
+            the volume series, on the same indexes as data. Only used when sub_type == 'vol'
+
+    OUTPUTS:
+        - out_pars: dict,
+            the fitted parameters. Every key correspond to a day of the y series. Every value is a list containing nu, mu, sigma.
+
+    Example of usage
+    ----------------
+    .. code-block:: python
+
+        import pandas as pd
+        from utils import price2params_EWMA
+
+        df = pd.read_csv('stock.csv')
+        price = df.Close
+        vol = df.Volume
+
+        fitted_pars = price2params_EWMA(price, c=78, sub_type='vol', vol=vol)
+
+    :meta private:
+    '''
+    from scipy.stats import t as stud_t #Load the Student's t-distribution
+
+    subordinator = Subordinator(c, sub_type=sub_type) #Initialize the subordinator
+
+    out_pars = dict() #Initialize the output dictionary
+    for day, _ in y.groupby(pd.Grouper(freq='D')): #Iterate over the days
+        # Isolate the day to work with
+        end_day = day + pd.Timedelta(days=1)
+        temp_y = y[(y.index >= day) & (y.index < end_day)]
+        #Eventually, ass the volume
+        if isinstance(vol, type(None)):
+            temp_vol = None
+        else:
+            temp_vol = vol[(vol.index >= day) & (vol.index < end_day)]
+
+        if len(temp_y) > 0: #If it is a working day
+            target_points = temp_y.iloc[subordinator.predict(temp_y, vol=temp_vol)] #Subordinated prices
+            log_ret = np.log(target_points).diff().dropna() # Subordinated logarithmic returns
+            '''
+            mu = smooth_par * (
+                np.log(target_points[-1]) - np.log(target_points[0])
+                )/c + (1 - smooth_par) * mu #Update the EWMA
+            '''
+            if isinstance(mu, type(None)): #If mu is not given, it has to be estimated
+                temp_out = list(stud_t.fit(log_ret))
+                if temp_out[0] < 2+1e-6: #Cap on the degrees of freedom nu
+                    temp_out = list(stud_t.fit(log_ret, f0=2+1e-6))
+                    if temp_out[2] < 1e-6: #Cap on the standard deviation
+                        temp_out[2] = 1e-6
+            else: #If mu is given, fit the other parameters by keeping it fixed
+                temp_out = list(stud_t.fit(log_ret, floc=mu))
+                if temp_out[0] < 2+1e-6: #Cap on the degrees of freedom nu
+                    temp_out = list(stud_t.fit(log_ret, f0=2+1e-6, floc=mu))
+                    if temp_out[2] < 1e-6: #Cap on the standard deviation
+                        temp_out[2] = 1e-6
+
+            out_pars[day] = temp_out #Add the results to the output dictionary
+
+            mu = smooth_par * (
+                np.log(target_points[-1]) - np.log(target_points[0])
+                )/c + (1 - smooth_par) * mu #Update the EWMA
+
+    return out_pars
+
+def _price2params_ma(y, c, mu=0., sub_type='clock', vol=None):
     '''
     Fit the intra-day distribution, which is assumed to be a MA(1) process with Student's t innovations.
 
@@ -292,7 +442,7 @@ def price2params_ma(y, c, mu=0, sub_type='clock', vol=None):
             the price time series, with a minute-by-minute granularity, over all the considered period (e.g., one year of data)
         - c: int
             the number of time indexes to sample
-        - mu: float,
+        - mu: float, optional
             the intra-day mean. It could be either a float or None. In the latter case, it will be estimated from the data. It is preferable to not set mu=None.
             If you don't have a reliable estimate for it, simply use 0. Default is 0
         - sub_type: str, optional
@@ -317,6 +467,8 @@ def price2params_ma(y, c, mu=0, sub_type='clock', vol=None):
         vol = df.Volume
 
         fitted_pars = price2params_ma(price, c=39, sub_type='vol', vol=vol)
+
+    :meta private:
     '''
     from scipy.stats import t as stud_t #Load the Student's t-distribution
     from scipy.optimize import minimize, Bounds #Load function for minimization
@@ -374,7 +526,116 @@ def price2params_ma(y, c, mu=0, sub_type='clock', vol=None):
                 ma_neg_ll, starting_point, args=(log_ret, mu),
                 method='SLSQP', bounds=bounds).x #Find the optimal phi and starting point
             temp_out = [temp_out[0]] + list(
-                my_t_fit(ma_resids(log_ret, *temp_out), mu)) #Concatenate phi and innovations' parameters
+                my_t_fit(ma_resids(log_ret, *temp_out), mu/(1+temp_out[0]))) #Concatenate phi and innovations' parameters
             out_pars[day] = temp_out #Add the results to the output dictionary
+
+    return out_pars
+
+def _price2params_ma_EWMA(y, c, mu=0., smooth_par=0.9, sub_type='clock', vol=None):
+    '''
+    Fit the intra-day distribution, which is assumed to be a MA(1) process with Student's t innovations.
+    The mean is updated according to an EWMA.
+
+    INPUTS:
+        - y: pandas Series,
+            the price time series, with a minute-by-minute granularity, over all the considered period (e.g., one year of data)
+        - c: int
+            the number of time indexes to sample
+        - mu: float, optional
+            the intra-day mean. It could be either a float or None. In the latter case, it will be estimated from the data. It is preferable to not set mu=None.
+            If you don't have a reliable estimate for it, simply use 0. Default is 0
+        - smooth_par: float, optional
+            the smoothing parameter for the EWMA. Default is 0.9
+        - sub_type: str, optional
+            Type of subordinator to use. Either 'clock' for the clock time; 'tpv' for the TriPower Variation;
+            'vol' for the volume; or 'identity' for the identity (that is, all the indexes are returned). Default is 'clock'
+        - vol: pd.Series, optional
+            the volume series, on the same indexes as data. Only used when sub_type == 'vol'
+
+    OUTPUTS:
+        - out_pars: dict,
+            the fitted parameters. Every key correspond to a day of the y series. Every value is a list containing nu, mu, sigma.
+
+    Example of usage
+    ----------------
+    .. code-block:: python
+
+        import pandas as pd
+        from utils import price2params_ma
+
+        df = pd.read_csv('stock.csv')
+        price = df.Close
+        vol = df.Volume
+
+        fitted_pars = price2params_ma(price, c=39, sub_type='vol', vol=vol)
+
+    :meta private:
+    '''
+    from scipy.stats import t as stud_t #Load the Student's t-distribution
+    from scipy.optimize import minimize, Bounds #Load function for minimization
+
+    def my_t_fit(obs, mu): #Fit the innovations to a Student's t-distribution
+        if isinstance(mu, type(None)): #If mu is not given, it has to be estimated
+            temp_out = list(stud_t.fit(obs))
+            if temp_out[0] < 2+1e-6: #Cap on the degrees of freedom nu
+                temp_out = list(stud_t.fit(obs, f0=2+1e-6))
+                if temp_out[2] < 1e-6: #Cap on the standard deviation
+                    temp_out[2] = 1e-6
+        else: #If mu is given, fit the other parameters by keeping it fixed
+            temp_out = list(stud_t.fit(obs, floc=mu))
+            if temp_out[0] < 2+1e-6: #Cap on the degrees of freedom nu
+                temp_out = list(stud_t.fit(obs, f0=2+1e-6, floc=mu))
+                if temp_out[2] < 1e-6: #Cap on the standard deviation
+                    temp_out[2] = 1e-6
+        return temp_out
+    
+    def ma_resids(y, phi, xi0): #Filter the residuals of the MA(1) process
+        inn = [xi0] #Initialize the residuals
+        for y_curr in y: #Iterate over the observations
+            inn.append( y_curr - phi*inn[-1] )
+        return inn
+
+    def ma_neg_ll(params, y, mu): #Negative log-likelihood of the MA(1) process
+        phi, xi0 = params
+        inn = ma_resids(y, phi, xi0) #Filter the residuals
+        if isinstance(mu, type(None)): #If mu is not given, it has to be estimated
+            return - stud_t.logpdf(inn, *my_t_fit(inn, None)).sum() #Return the negative log-likelihood
+        else: #If mu is given, it has to been adjusted according to phi
+            return - stud_t.logpdf(inn, *my_t_fit(inn, mu/(1+phi))).sum() #Return the negative log-likelihood
+
+    starting_point = [-0.05, 0] #Starting point for the minimization: phi=-0.05, xi0=0
+    bounds = Bounds([-0.1, -1], [0.1, 1]) #Bounds for the parameters
+
+    subordinator = Subordinator(c, sub_type=sub_type) #Initialize the subordinator
+
+    out_pars = dict() #Initialize the output dictionary
+    for day, _ in y.groupby(pd.Grouper(freq='D')): #Iterate over the days
+        # Isolate the day to work with
+        end_day = day + pd.Timedelta(days=1)
+        temp_y = y[(y.index >= day) & (y.index < end_day)]
+        #Eventually, ass the volume
+        if isinstance(vol, type(None)):
+            temp_vol = None
+        else:
+            temp_vol = vol[(vol.index >= day) & (vol.index < end_day)]
+
+        if len(temp_y) > 0: #If it is a working day
+            target_points = temp_y.iloc[subordinator.predict(temp_y, vol=temp_vol)] #Subordinated prices
+            log_ret = np.log(target_points).diff().dropna() # Subordinated logarithmic returns
+            '''
+            mu = smooth_par * (
+                np.log(target_points[-1]) - np.log(target_points[0])
+                )/c + (1 - smooth_par) * mu #Update the EWMA
+            '''
+            temp_out = minimize(
+                ma_neg_ll, starting_point, args=(log_ret, mu),
+                method='SLSQP', bounds=bounds).x #Find the optimal phi and starting point
+            temp_out = [temp_out[0]] + list(
+                my_t_fit(ma_resids(log_ret, *temp_out), mu/(1+temp_out[0]))) #Concatenate phi and innovations' parameters
+            out_pars[day] = temp_out #Add the results to the output dictionary
+
+            mu = smooth_par * (
+                np.log(target_points[-1]) - np.log(target_points[0])
+                )/c + (1 - smooth_par) * mu #Update the EWMA
 
     return out_pars
