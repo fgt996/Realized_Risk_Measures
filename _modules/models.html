@@ -185,6 +185,8 @@
 <span class="sd">    OUTPUTS:</span>
 <span class="sd">        - zero: float,</span>
 <span class="sd">            the root of the function.</span>
+<span class="sd">    </span>
+<span class="sd">    :meta private:</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">brentq</span> <span class="c1">#Load the brentq function</span>
 
@@ -253,10 +255,10 @@
 <a class="viewcode-back" href="../models.html#models.Ch_RealizedRisk">[docs]</a>
 <span class="k">class</span> <span class="nc">Ch_RealizedRisk</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Filtering approach proposed in [1]. It is based on the assumption of iid subordinated returns following the t-distribution.</span>
-<span class="sd">    The characteristic function approach is used to recover the low-frequency risk measures.</span>
+<span class="sd">    Filtering approach proposed in [1]. </span>
+<span class="sd">    The characteristic function approach is used to recover the low-frequency risk measures from the high-frequency distribution (Student&#39;s t) parameters.</span>
 
-<span class="sd">    [1]: Gatta, F., &amp; Lillo, F., &amp; Mazzarisi, P. (2024). A High-frequency Approach to Risk Measures. TBD.</span>
+<span class="sd">    [1]: Gatta, F., Lillo, F., &amp; Mazzarisi, P. (2025). A high-frequency approach to Realized Risk Measures. arXiv preprint arXiv:2510.16526.</span>
 
 <span class="sd">    Parameters:</span>
 <span class="sd">    ----------------</span>
@@ -264,6 +266,8 @@
 <span class="sd">            the target probability level.</span>
 <span class="sd">        - n_points: int, optional</span>
 <span class="sd">            Number of points used to evaluate the ES (which is computed as the average of equi-spaced quantile estimates at probability levels theta_j &lt;= theta). Default is 8.</span>
+<span class="sd">        - ma: bool, optional</span>
+<span class="sd">            Whether the returns are assumed to follow an MA(1) process. If False, returns are assumed to be iid. Default is False.</span>
 
 <span class="sd">    Example of usage</span>
 <span class="sd">    ----------------</span>
@@ -286,13 +290,12 @@
 <span class="sd">    Methods:</span>
 <span class="sd">    ----------------</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">n_points</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">n_points</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">ma</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">n_points</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ma</span> <span class="o">=</span> <span class="n">ma</span>
 
-<div class="viewcode-block" id="Ch_RealizedRisk.quantile_from_cf_wrapper">
-<a class="viewcode-back" href="../models.html#models.Ch_RealizedRisk.quantile_from_cf_wrapper">[docs]</a>
-    <span class="k">def</span> <span class="nf">quantile_from_cf_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">nu</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">pipend</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_quantile_from_cf_wrapper_iid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">nu</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">pipend</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Compute the daily risk measures from the high-frequency characteristic function, by using the Gil-Pelaez formula.</span>
 <span class="sd">        The intra-day returns are assumed to be iid, t-distributed with 0 mean. The routine is used in the multiprocessing framework.</span>
@@ -308,6 +311,8 @@
 <span class="sd">                the scale parameter of the t-distribution.</span>
 <span class="sd">            - pipend: multiprocessing.Pipe</span>
 <span class="sd">                The pipe to communicate the result to the main process.</span>
+
+<span class="sd">        :meta private:</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">quad</span> <span class="c1">#Load the quadrature function</span>
         <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span> <span class="c1">#Load function for minimization</span>
@@ -345,114 +350,12 @@
                 <span class="n">temp_out</span><span class="o">.</span><span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">temp_out</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
                 <span class="n">temp_out</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span>
-            <span class="n">pipend</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">temp_out</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+            <span class="n">pipend</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">temp_out</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-    
-<div class="viewcode-block" id="Ch_RealizedRisk.fit">
-<a class="viewcode-back" href="../models.html#models.Ch_RealizedRisk.fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">internal_state</span><span class="p">,</span> <span class="n">jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Map the t-distribution parameters into the low-frequency risk measures.</span>
-
-<span class="sd">        INPUTS:</span>
-<span class="sd">            - c: int</span>
-<span class="sd">                the number of time indexes to sample.</span>
-<span class="sd">            - internal_state: dict</span>
-<span class="sd">                the fitted t-distribution parameters. Every key correspond to a day.</span>
-<span class="sd">                Every value is assumed to be a list [degrees of freedom, location, scale].</span>
-<span class="sd">            - jobs: int, optional</span>
-<span class="sd">                Number of simultaneous processes to run. Default is 1.</span>
-
-<span class="sd">        OUTPUTS:</span>
-<span class="sd">            - qf: dict</span>
-<span class="sd">                the filtered VaR. It has the same keys as internal_state.</span>
-<span class="sd">            - ef: dict</span>
-<span class="sd">                the filtered ES. It has the same keys as internal_state.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="k">as</span> <span class="nn">mp</span> <span class="c1">#Load the multiprocessing module</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">exp</span> <span class="o">=</span> <span class="n">c</span> <span class="c1">#Set the exponent for the characteristic function</span>
-
-        <span class="n">qf</span><span class="p">,</span> <span class="n">ef</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(),</span> <span class="nb">dict</span><span class="p">()</span> <span class="c1">#Initialize the dictionaries to store the daily values</span>
-        <span class="k">for</span> <span class="n">day</span> <span class="ow">in</span> <span class="n">internal_state</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span> <span class="c1">#Iterate over the days</span>
-            <span class="n">fitting_out</span> <span class="o">=</span> <span class="n">internal_state</span><span class="p">[</span><span class="n">day</span><span class="p">]</span> <span class="c1">#Get the fitting output for the day</span>
-            <span class="n">qf_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span> <span class="c1"># Initialize the list of quantile forecasts at different levels theta_j</span>
-
-            <span class="c1"># Compute quantile in the inner theta_j</span>
-            <span class="k">for</span> <span class="n">q_start</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">),</span> <span class="n">jobs</span><span class="p">):</span> <span class="c1">#Iterate over the theta_j</span>
-                <span class="c1"># Create and start worker processes</span>
-                <span class="n">workers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span> <span class="c1"># Initialize the list of workers</span>
-                <span class="n">end_point</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">q_start</span><span class="o">+</span><span class="n">jobs</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)])</span> <span class="c1"># Define the end point of the iteration</span>
-                
-                <span class="k">for</span> <span class="n">theta_j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">q_start</span><span class="p">:</span><span class="n">end_point</span><span class="p">]:</span> <span class="c1"># Iterate over theta_j</span>
-                    <span class="n">parent_pipend</span><span class="p">,</span> <span class="n">child_pipend</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pipe</span><span class="p">()</span> <span class="c1"># Create a pipe to communicate with the worker</span>
-                    <span class="n">worker</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span>
-                        <span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">quantile_from_cf_wrapper</span><span class="p">,</span>
-                        <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">theta_j</span><span class="p">,</span> <span class="n">fitting_out</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fitting_out</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                              <span class="n">fitting_out</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">child_pipend</span><span class="p">))</span> <span class="c1"># Define the worker</span>
-                    <span class="n">workers</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">worker</span><span class="p">,</span> <span class="n">parent_pipend</span><span class="p">])</span> <span class="c1"># Append the worker to the list</span>
-                    <span class="n">worker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span> <span class="c1"># Start the worker</span>
-
-                <span class="c1"># Gather results from workers</span>
-                <span class="k">for</span> <span class="n">worker</span><span class="p">,</span> <span class="n">parent_pipend</span> <span class="ow">in</span> <span class="n">workers</span><span class="p">:</span>
-                    <span class="n">q_emp</span> <span class="o">=</span> <span class="n">parent_pipend</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span> <span class="c1"># Get the result from the worker</span>
-                    <span class="n">worker</span><span class="o">.</span><span class="n">join</span><span class="p">()</span> <span class="c1"># Wait for the worker to finish</span>
-                    <span class="n">qf_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q_emp</span><span class="p">)</span>
-
-            <span class="n">qf</span><span class="p">[</span><span class="n">day</span><span class="p">]</span> <span class="o">=</span> <span class="n">qf_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1">#The VaR forecast is the last element of the list</span>
-            <span class="n">ef</span><span class="p">[</span><span class="n">day</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">qf_list</span><span class="p">)</span> <span class="c1">#The ES forecast is the average of the elements in the list</span>
-
-        <span class="k">return</span> <span class="n">qf</span><span class="p">,</span> <span class="n">ef</span></div>
-</div>
-
-
-<div class="viewcode-block" id="Ch_RealizedRisk_MA">
-<a class="viewcode-back" href="../models.html#models.Ch_RealizedRisk_MA">[docs]</a>
-<span class="k">class</span> <span class="nc">Ch_RealizedRisk_MA</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Filtering approach proposed in [1]. It is based on the assumption of MA(1) subordinated returns with t-distributed innovations.</span>
-<span class="sd">    The characteristic function approach is used to recover the low-frequency risk measures.</span>
-
-<span class="sd">    [1]: Gatta, F., &amp; Lillo, F., &amp; Mazzarisi, P. (2024). A High-frequency Approach to Risk Measures. TBD.</span>
-
-<span class="sd">    Parameters:</span>
-<span class="sd">    ----------------</span>
-<span class="sd">        - theta: float</span>
-<span class="sd">            the target probability level.</span>
-<span class="sd">        - n_points: int, optional</span>
-<span class="sd">            Number of points used to evaluate the ES (which is computed as the average of equi-spaced quantile estimates at probability levels theta_j &lt;= theta). Default is 8.</span>
-
-<span class="sd">    Example of usage</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    .. code-block:: python</span>
-
-<span class="sd">        import numpy as np</span>
-<span class="sd">        import pandas as pd</span>
-<span class="sd">        from utils import price2params_ma</span>
-<span class="sd">        from models import Ch_RealizedRisk_MA</span>
-
-<span class="sd">        df = pd.read_csv(&#39;stock.csv&#39;)</span>
-<span class="sd">        df.index = pd.to_datetime(df.index)</span>
-<span class="sd">        price = df.Close</span>
-
-<span class="sd">        fitted_pars = price2params_ma(price, c=78, sub_type=&#39;tpv&#39;) #Fit the t-distribution parameters</span>
-
-<span class="sd">        mdl = Ch_RealizedRisk_MA(0.05) #Initialize the model</span>
-<span class="sd">        qf, ef = mdl.fit(78, fitted_pars, jobs=4) #Run to obtain the filtered VaR and ES</span>
-<span class="sd">    </span>
-<span class="sd">    Methods:</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">n_points</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">n_points</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
-
-<div class="viewcode-block" id="Ch_RealizedRisk_MA.quantile_from_cf_wrapper">
-<a class="viewcode-back" href="../models.html#models.Ch_RealizedRisk_MA.quantile_from_cf_wrapper">[docs]</a>
-    <span class="k">def</span> <span class="nf">quantile_from_cf_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">nu</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">pipend</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_quantile_from_cf_wrapper_ma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">nu</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">pipend</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Compute the daily risk measures from the high-frequency characteristic function, by using the Gil-Pelaez formula.</span>
-<span class="sd">        The intra-day returns are assumed to be iid, t-distributed with 0 mean. The routine is used in the multiprocessing framework.</span>
+<span class="sd">        The intra-day returns are follow an MA process whose innovations are t-distributed with 0 mean. The routine is used in the multiprocessing framework.</span>
 
 <span class="sd">        INPUTS:</span>
 <span class="sd">            - theta: float</span>
@@ -467,6 +370,8 @@
 <span class="sd">                the scale parameter of the t-distribution.</span>
 <span class="sd">            - pipend: multiprocessing.Pipe</span>
 <span class="sd">                The pipe to communicate the result to the main process.</span>
+
+<span class="sd">        :meta private:</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">quad</span> <span class="c1">#Load the quadrature function</span>
         <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span> <span class="c1">#Load function for minimization</span>
@@ -508,11 +413,10 @@
                 <span class="n">temp_out</span><span class="o">.</span><span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">temp_out</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
                 <span class="n">temp_out</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]</span>
-            <span class="n">pipend</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">temp_out</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
-
+            <span class="n">pipend</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">temp_out</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     
-<div class="viewcode-block" id="Ch_RealizedRisk_MA.fit">
-<a class="viewcode-back" href="../models.html#models.Ch_RealizedRisk_MA.fit">[docs]</a>
+<div class="viewcode-block" id="Ch_RealizedRisk.fit">
+<a class="viewcode-back" href="../models.html#models.Ch_RealizedRisk.fit">[docs]</a>
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">internal_state</span><span class="p">,</span> <span class="n">jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Map the t-distribution parameters into the low-frequency risk measures.</span>
@@ -522,7 +426,7 @@
 <span class="sd">                the number of time indexes to sample.</span>
 <span class="sd">            - internal_state: dict</span>
 <span class="sd">                the fitted t-distribution parameters. Every key correspond to a day.</span>
-<span class="sd">                Every value is assumed to be a list [autoregressive parameter, degrees of freedom, location, scale].</span>
+<span class="sd">                Every value is assumed to be a list [degrees of freedom, location, scale].</span>
 <span class="sd">            - jobs: int, optional</span>
 <span class="sd">                Number of simultaneous processes to run. Default is 1.</span>
 
@@ -534,7 +438,11 @@
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="kn">import</span> <span class="nn">multiprocessing</span> <span class="k">as</span> <span class="nn">mp</span> <span class="c1">#Load the multiprocessing module</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">exp</span> <span class="o">=</span> <span class="n">c</span><span class="o">-</span><span class="mi">1</span> <span class="c1">#Set the exponent for the characteristic function</span>
+        <span class="c1"># Set the exponent for the characteristic function</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ma</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exp</span> <span class="o">=</span> <span class="n">c</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exp</span> <span class="o">=</span> <span class="n">c</span><span class="o">-</span><span class="mi">1</span>
 
         <span class="n">qf</span><span class="p">,</span> <span class="n">ef</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(),</span> <span class="nb">dict</span><span class="p">()</span> <span class="c1">#Initialize the dictionaries to store the daily values</span>
         <span class="k">for</span> <span class="n">day</span> <span class="ow">in</span> <span class="n">internal_state</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span> <span class="c1">#Iterate over the days</span>
@@ -542,17 +450,24 @@
             <span class="n">qf_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span> <span class="c1"># Initialize the list of quantile forecasts at different levels theta_j</span>
 
             <span class="c1"># Compute quantile in the inner theta_j</span>
-            <span class="k">for</span> <span class="n">q_start</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">),</span> <span class="n">jobs</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">q_start</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">),</span> <span class="n">jobs</span><span class="p">):</span> <span class="c1">#Iterate over the theta_j</span>
                 <span class="c1"># Create and start worker processes</span>
                 <span class="n">workers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span> <span class="c1"># Initialize the list of workers</span>
                 <span class="n">end_point</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">q_start</span><span class="o">+</span><span class="n">jobs</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)])</span> <span class="c1"># Define the end point of the iteration</span>
                 
                 <span class="k">for</span> <span class="n">theta_j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="n">q_start</span><span class="p">:</span><span class="n">end_point</span><span class="p">]:</span> <span class="c1"># Iterate over theta_j</span>
                     <span class="n">parent_pipend</span><span class="p">,</span> <span class="n">child_pipend</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Pipe</span><span class="p">()</span> <span class="c1"># Create a pipe to communicate with the worker</span>
-                    <span class="n">worker</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span>
-                        <span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">quantile_from_cf_wrapper</span><span class="p">,</span>
-                        <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">theta_j</span><span class="p">,</span> <span class="n">fitting_out</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fitting_out</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                              <span class="n">fitting_out</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">fitting_out</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">child_pipend</span><span class="p">))</span> <span class="c1"># Define the worker</span>
+                    <span class="c1"># Define the worker</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ma</span><span class="p">:</span>
+                        <span class="n">worker</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span>
+                            <span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_quantile_from_cf_wrapper_ma</span><span class="p">,</span>
+                            <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">theta_j</span><span class="p">,</span> <span class="n">fitting_out</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fitting_out</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                <span class="n">fitting_out</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">fitting_out</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">child_pipend</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">worker</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span>
+                            <span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_quantile_from_cf_wrapper_iid</span><span class="p">,</span>
+                            <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">theta_j</span><span class="p">,</span> <span class="o">*</span><span class="n">fitting_out</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fitting_out</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                <span class="n">fitting_out</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">child_pipend</span><span class="p">))</span> 
                     <span class="n">workers</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">worker</span><span class="p">,</span> <span class="n">parent_pipend</span><span class="p">])</span> <span class="c1"># Append the worker to the list</span>
                     <span class="n">worker</span><span class="o">.</span><span class="n">start</span><span class="p">()</span> <span class="c1"># Start the worker</span>
 
@@ -562,8 +477,8 @@
                     <span class="n">worker</span><span class="o">.</span><span class="n">join</span><span class="p">()</span> <span class="c1"># Wait for the worker to finish</span>
                     <span class="n">qf_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">q_emp</span><span class="p">)</span>
 
-            <span class="n">qf</span><span class="p">[</span><span class="n">day</span><span class="p">]</span> <span class="o">=</span> <span class="n">qf_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">ef</span><span class="p">[</span><span class="n">day</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">qf_list</span><span class="p">)</span>
+            <span class="n">qf</span><span class="p">[</span><span class="n">day</span><span class="p">]</span> <span class="o">=</span> <span class="n">qf_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1">#The VaR forecast is the last element of the list</span>
+            <span class="n">ef</span><span class="p">[</span><span class="n">day</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">qf_list</span><span class="p">)</span> <span class="c1">#The ES forecast is the average of the elements in the list</span>
 
         <span class="k">return</span> <span class="n">qf</span><span class="p">,</span> <span class="n">ef</span></div>
 </div>
@@ -573,15 +488,17 @@
 <a class="viewcode-back" href="../models.html#models.MC_RealizedRisk">[docs]</a>
 <span class="k">class</span> <span class="nc">MC_RealizedRisk</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Filtering approach proposed in [1]. It is based on the assumption of iid subordinated returns following the t-distribution.</span>
-<span class="sd">    The Monte-Carlo approach is used to recover the low-frequency risk measures.</span>
+<span class="sd">    Filtering approach proposed in [1].</span>
+<span class="sd">    The Monte-Carlo approach is used to recover the low-frequency risk measures from the high-frequency distribution (Student&#39;s t) parameters.</span>
 
-<span class="sd">    [1]: Gatta, F., &amp; Lillo, F., &amp; Mazzarisi, P. (2024). A High-frequency Approach to Risk Measures. TBD.</span>
+<span class="sd">    [1]: Gatta, F., Lillo, F., &amp; Mazzarisi, P. (2025). A high-frequency approach to Realized Risk Measures. arXiv preprint arXiv:2510.16526.</span>
 
 <span class="sd">    Parameters:</span>
 <span class="sd">    ----------------</span>
 <span class="sd">        - theta: float or list</span>
 <span class="sd">            the target probability level, or a list of target probability levels.</span>
+<span class="sd">        - ma: bool, optional</span>
+<span class="sd">            Whether the returns are assumed to follow an MA(1) process. If False, returns are assumed to be iid. Default is False.</span>
 
 <span class="sd">    Example of usage</span>
 <span class="sd">    ----------------</span>
@@ -604,14 +521,14 @@
 <span class="sd">    Methods:</span>
 <span class="sd">    ----------------</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">ma</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ma</span> <span class="o">=</span> <span class="n">ma</span>
     
-<div class="viewcode-block" id="MC_RealizedRisk.simulate_iid">
-<a class="viewcode-back" href="../models.html#models.MC_RealizedRisk.simulate_iid">[docs]</a>
-    <span class="k">def</span> <span class="nf">simulate_iid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">nu</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">ant_v</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_simulate_iid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">nu</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">ant_v</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Monte-Carlo simulation for extracting the distribution of the low-frequency return.</span>
+<span class="sd">        Returns are assumed to be iid.</span>
 
 <span class="sd">        INPUTS:</span>
 <span class="sd">            - N: int</span>
@@ -632,6 +549,8 @@
 <span class="sd">        OUTPUTS:</span>
 <span class="sd">            - samples: ndarray</span>
 <span class="sd">                the simulated low-frequency returns.</span>
+
+<span class="sd">        :meta private:</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">t</span> <span class="k">as</span> <span class="n">stud_t</span> <span class="c1">#Load the Student&#39;s t-distribution</span>
 
@@ -642,8 +561,46 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">out</span> <span class="o">=</span> <span class="n">stud_t</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">nu</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="o">*</span><span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">c</span><span class="p">)</span>
             <span class="n">samples</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">samples</span></div>
+        <span class="k">return</span> <span class="n">samples</span>
+    
+    <span class="k">def</span> <span class="nf">_simulate_ma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">nu</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">ant_v</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Monte-Carlo simulation for extracting the distribution of the low-frequency return.</span>
+<span class="sd">        Returns are assumed to follow an MA(1) process.</span>
 
+<span class="sd">        INPUTS:</span>
+<span class="sd">            - N: int</span>
+<span class="sd">                the number of Monte-Carlo paths to simulate (if ant_v==True, the number is doubled).</span>
+<span class="sd">            - c: int</span>
+<span class="sd">                the number of time indexes to sample.</span>
+<span class="sd">            - phi: float</span>
+<span class="sd">                the autoregressive coefficient.</span>
+<span class="sd">            - nu: float</span>
+<span class="sd">                the degrees of freedom.</span>
+<span class="sd">            - mu: float</span>
+<span class="sd">                the location parameter of the t-distribution.</span>
+<span class="sd">            - sigma: float</span>
+<span class="sd">                the scale parameter of the t-distribution.</span>
+<span class="sd">            - ant_v: bool, optional</span>
+<span class="sd">                Flag to indicate if the antithetic variates should be used. Default is True.</span>
+<span class="sd">            - seed: int, optional</span>
+<span class="sd">                Seed for the random number generator. Default is None.</span>
+
+<span class="sd">        OUTPUTS:</span>
+<span class="sd">            - samples: ndarray</span>
+<span class="sd">                the simulated low-frequency returns.</span>
+
+<span class="sd">        :meta private:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">t</span> <span class="k">as</span> <span class="n">stud_t</span> <span class="c1">#Load the Student&#39;s t-distribution</span>
+
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ant_v</span><span class="p">:</span>
+            <span class="n">inn</span> <span class="o">=</span> <span class="n">stud_t</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">nu</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="o">*</span><span class="p">(</span><span class="n">c</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">c</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">inn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">inn</span><span class="p">,</span> <span class="o">-</span><span class="n">inn</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">mu</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">inn</span> <span class="o">=</span> <span class="n">stud_t</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">nu</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="o">*</span><span class="p">(</span><span class="n">c</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">c</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">phi</span><span class="o">*</span><span class="n">inn</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">inn</span><span class="p">[:,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">phi</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">inn</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
     
 <div class="viewcode-block" id="MC_RealizedRisk.fit">
 <a class="viewcode-back" href="../models.html#models.MC_RealizedRisk.fit">[docs]</a>
@@ -683,142 +640,12 @@
         <span class="k">for</span> <span class="n">temp_key</span> <span class="ow">in</span> <span class="n">internal_state</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span> <span class="c1">#Iterate over the days</span>
             <span class="c1"># Simulate the low-frequency returns</span>
             <span class="n">temp_coeff</span> <span class="o">=</span> <span class="n">internal_state</span><span class="p">[</span><span class="n">temp_key</span><span class="p">]</span>
-            <span class="n">sim_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulate_iid</span><span class="p">(</span>
-                <span class="n">N</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="o">*</span><span class="n">temp_coeff</span><span class="p">,</span> <span class="n">ant_v</span><span class="o">=</span><span class="n">ant_v</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">theta</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">:</span> <span class="c1">#Iterate over the target probability levels</span>
-                    <span class="n">q_val_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">sim_data</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span> <span class="c1">#Compute the VaR</span>
-                    <span class="n">qf</span><span class="p">[</span><span class="n">theta</span><span class="p">][</span><span class="n">temp_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_val_temp</span>
-                    <span class="n">ef</span><span class="p">[</span><span class="n">theta</span><span class="p">][</span><span class="n">temp_key</span><span class="p">]</span> <span class="o">=</span>\
-                        <span class="n">sim_data</span><span class="p">[</span> <span class="n">sim_data</span> <span class="o">&lt;=</span> <span class="n">q_val_temp</span> <span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="c1">#Compute the ES</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ma</span><span class="p">:</span>
+                <span class="n">sim_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simulate_ma</span><span class="p">(</span>
+                    <span class="n">N</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="o">*</span><span class="n">temp_coeff</span><span class="p">,</span> <span class="n">ant_v</span><span class="o">=</span><span class="n">ant_v</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">q_val_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">sim_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">)</span> <span class="c1">#Compute the VaR</span>
-                <span class="n">qf</span><span class="p">[</span><span class="n">temp_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_val_temp</span>
-                <span class="n">ef</span><span class="p">[</span><span class="n">temp_key</span><span class="p">]</span> <span class="o">=</span>\
-                    <span class="n">sim_data</span><span class="p">[</span> <span class="n">sim_data</span> <span class="o">&lt;=</span> <span class="n">q_val_temp</span> <span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="c1">#Compute the ES</span>
-
-        <span class="k">return</span> <span class="n">qf</span><span class="p">,</span> <span class="n">ef</span></div>
-</div>
-
-
-<div class="viewcode-block" id="MC_RealizedRisk_MA">
-<a class="viewcode-back" href="../models.html#models.MC_RealizedRisk_MA">[docs]</a>
-<span class="k">class</span> <span class="nc">MC_RealizedRisk_MA</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Filtering approach proposed in [1]. It is based on the assumption of MA(1) subordinated returns with t-distributed innovations.</span>
-<span class="sd">    The Monte-Carlo approach is used to recover the low-frequency risk measures.</span>
-
-<span class="sd">    [1]: Gatta, F., &amp; Lillo, F., &amp; Mazzarisi, P. (2024). A High-frequency Approach to Risk Measures. TBD.</span>
-
-<span class="sd">    Parameters:</span>
-<span class="sd">    ----------------</span>
-<span class="sd">        - theta: float or list</span>
-<span class="sd">            the target probability level, or a list of target probability levels.</span>
-
-<span class="sd">    Example of usage</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    .. code-block:: python</span>
-
-<span class="sd">        import numpy as np</span>
-<span class="sd">        import pandas as pd</span>
-<span class="sd">        from utils import price2params_ma</span>
-<span class="sd">        from models import MC_RealizedRisk_MA</span>
-
-<span class="sd">        df = pd.read_csv(&#39;stock.csv&#39;)</span>
-<span class="sd">        df.index = pd.to_datetime(df.index)</span>
-<span class="sd">        price = df.Close</span>
-
-<span class="sd">        fitted_pars = price2params_ma(price, c=78, sub_type=&#39;tpv&#39;) #Fit the t-distribution parameters</span>
-
-<span class="sd">        mdl = MC_RealizedRisk_MA([0.05, 0.025]) #Initialize the model</span>
-<span class="sd">        qf, ef = mdl.fit(78, fitted_pars) #Run to obtain the filtered VaR and ES</span>
-<span class="sd">    </span>
-<span class="sd">    Methods:</span>
-<span class="sd">    ----------------</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">theta</span>
-    
-<div class="viewcode-block" id="MC_RealizedRisk_MA.simulate_ma">
-<a class="viewcode-back" href="../models.html#models.MC_RealizedRisk_MA.simulate_ma">[docs]</a>
-    <span class="k">def</span> <span class="nf">simulate_ma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">phi</span><span class="p">,</span> <span class="n">nu</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">ant_v</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Monte-Carlo simulation for extracting the distribution of the low-frequency return.</span>
-
-<span class="sd">        INPUTS:</span>
-<span class="sd">            - N: int</span>
-<span class="sd">                the number of Monte-Carlo paths to simulate (if ant_v==True, the number is doubled).</span>
-<span class="sd">            - c: int</span>
-<span class="sd">                the number of time indexes to sample.</span>
-<span class="sd">            - phi: float</span>
-<span class="sd">                the autoregressive coefficient.</span>
-<span class="sd">            - nu: float</span>
-<span class="sd">                the degrees of freedom.</span>
-<span class="sd">            - mu: float</span>
-<span class="sd">                the location parameter of the t-distribution.</span>
-<span class="sd">            - sigma: float</span>
-<span class="sd">                the scale parameter of the t-distribution.</span>
-<span class="sd">            - ant_v: bool, optional</span>
-<span class="sd">                Flag to indicate if the antithetic variates should be used. Default is True.</span>
-<span class="sd">            - seed: int, optional</span>
-<span class="sd">                Seed for the random number generator. Default is None.</span>
-
-<span class="sd">        OUTPUTS:</span>
-<span class="sd">            - samples: ndarray</span>
-<span class="sd">                the simulated low-frequency returns.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">t</span> <span class="k">as</span> <span class="n">stud_t</span> <span class="c1">#Load the Student&#39;s t-distribution</span>
-
-        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">ant_v</span><span class="p">:</span>
-            <span class="n">inn</span> <span class="o">=</span> <span class="n">stud_t</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">nu</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="o">*</span><span class="p">(</span><span class="n">c</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">c</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">inn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">inn</span><span class="p">,</span> <span class="o">-</span><span class="n">inn</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">mu</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">inn</span> <span class="o">=</span> <span class="n">stud_t</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">nu</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">mu</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="o">*</span><span class="p">(</span><span class="n">c</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">c</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">phi</span><span class="o">*</span><span class="n">inn</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">inn</span><span class="p">[:,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">phi</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">inn</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span></div>
-
-    
-<div class="viewcode-block" id="MC_RealizedRisk_MA.fit">
-<a class="viewcode-back" href="../models.html#models.MC_RealizedRisk_MA.fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">internal_state</span><span class="p">,</span> <span class="n">ant_v</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Map the t-distribution parameters into the low-frequency risk measures.</span>
-
-<span class="sd">        INPUTS:</span>
-<span class="sd">            - N: int</span>
-<span class="sd">                the number of Monte-Carlo paths to simulate (if ant_v==True, the number is doubled).</span>
-<span class="sd">            - c: int</span>
-<span class="sd">                the number of time indexes to sample.</span>
-<span class="sd">            - internal_state: dict</span>
-<span class="sd">                the fitted t-distribution parameters. Every key correspond to a day.</span>
-<span class="sd">                Every value is assumed to be a list [degrees of freedom, location, scale].</span>
-<span class="sd">            - ant_v: bool, optional</span>
-<span class="sd">                Flag to indicate if the antithetic variates should be used. Default is True.</span>
-<span class="sd">            - seed: int, optional</span>
-<span class="sd">                Seed for the random number generator. Default is None.</span>
-
-<span class="sd">        OUTPUTS:</span>
-<span class="sd">            - qf: dict</span>
-<span class="sd">                the filtered VaR. If self.theta is a float, it has the same keys as internal_state.</span>
-<span class="sd">                If self.theta is a list, it has a key for every element in the list.</span>
-<span class="sd">                Every value is a dict itself with the same keys as internal_state.</span>
-<span class="sd">            - ef: dict</span>
-<span class="sd">                the filtered ES. If self.theta is a float, it has the same keys as internal_state.</span>
-<span class="sd">                If self.theta is a list, it has a key for every element in the list.</span>
-<span class="sd">                Every value is a dict itself with the same keys as internal_state.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="c1"># Initialize the dictionaries to store the daily values</span>
-        <span class="n">qf</span><span class="p">,</span> <span class="n">ef</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(),</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">theta</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">:</span>
-                <span class="n">qf</span><span class="p">[</span><span class="n">theta</span><span class="p">],</span> <span class="n">ef</span><span class="p">[</span><span class="n">theta</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(),</span> <span class="nb">dict</span><span class="p">()</span>
-
-        <span class="k">for</span> <span class="n">temp_key</span> <span class="ow">in</span> <span class="n">internal_state</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span> <span class="c1">#Iterate over the days</span>
-            <span class="c1"># Simulate the low-frequency returns</span>
-            <span class="n">temp_coeff</span> <span class="o">=</span> <span class="n">internal_state</span><span class="p">[</span><span class="n">temp_key</span><span class="p">]</span>
-            <span class="n">sim_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulate_ma</span><span class="p">(</span>
-                <span class="n">N</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="o">*</span><span class="n">temp_coeff</span><span class="p">,</span> <span class="n">ant_v</span><span class="o">=</span><span class="n">ant_v</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+                <span class="n">sim_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simulate_iid</span><span class="p">(</span>
+                    <span class="n">N</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="o">*</span><span class="n">temp_coeff</span><span class="p">,</span> <span class="n">ant_v</span><span class="o">=</span><span class="n">ant_v</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">theta</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">theta</span><span class="p">:</span> <span class="c1">#Iterate over the target probability levels</span>

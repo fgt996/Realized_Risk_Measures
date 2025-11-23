@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>models module &mdash; realized_risk_measures 1.0.0 documentation</title>
@@ -51,12 +51,6 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">models module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#models.Ch_RealizedRisk"><code class="docutils literal notranslate"><span class="pre">Ch_RealizedRisk</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#models.Ch_RealizedRisk.fit"><code class="docutils literal notranslate"><span class="pre">Ch_RealizedRisk.fit()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#models.Ch_RealizedRisk.quantile_from_cf_wrapper"><code class="docutils literal notranslate"><span class="pre">Ch_RealizedRisk.quantile_from_cf_wrapper()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#models.Ch_RealizedRisk_MA"><code class="docutils literal notranslate"><span class="pre">Ch_RealizedRisk_MA</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#models.Ch_RealizedRisk_MA.fit"><code class="docutils literal notranslate"><span class="pre">Ch_RealizedRisk_MA.fit()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#models.Ch_RealizedRisk_MA.quantile_from_cf_wrapper"><code class="docutils literal notranslate"><span class="pre">Ch_RealizedRisk_MA.quantile_from_cf_wrapper()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#models.DH_RealizedRisk"><code class="docutils literal notranslate"><span class="pre">DH_RealizedRisk</span></code></a><ul>
@@ -65,12 +59,6 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#models.MC_RealizedRisk"><code class="docutils literal notranslate"><span class="pre">MC_RealizedRisk</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#models.MC_RealizedRisk.fit"><code class="docutils literal notranslate"><span class="pre">MC_RealizedRisk.fit()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#models.MC_RealizedRisk.simulate_iid"><code class="docutils literal notranslate"><span class="pre">MC_RealizedRisk.simulate_iid()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#models.MC_RealizedRisk_MA"><code class="docutils literal notranslate"><span class="pre">MC_RealizedRisk_MA</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#models.MC_RealizedRisk_MA.fit"><code class="docutils literal notranslate"><span class="pre">MC_RealizedRisk_MA.fit()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#models.MC_RealizedRisk_MA.simulate_ma"><code class="docutils literal notranslate"><span class="pre">MC_RealizedRisk_MA.simulate_ma()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -109,11 +97,11 @@
 <span id="models-module"></span><h1>models module<a class="headerlink" href="#module-models" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="models.Ch_RealizedRisk">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.</span></span><span class="sig-name descname"><span class="pre">Ch_RealizedRisk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#Ch_RealizedRisk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.Ch_RealizedRisk" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.</span></span><span class="sig-name descname"><span class="pre">Ch_RealizedRisk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#Ch_RealizedRisk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.Ch_RealizedRisk" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Filtering approach proposed in [1]. It is based on the assumption of iid subordinated returns following the t-distribution.
-The characteristic function approach is used to recover the low-frequency risk measures.</p>
-<p>[1]: Gatta, F., &amp; Lillo, F., &amp; Mazzarisi, P. (2024). A High-frequency Approach to Risk Measures. TBD.</p>
+<p>Filtering approach proposed in [1].
+The characteristic function approach is used to recover the low-frequency risk measures from the high-frequency distribution (Student’s t) parameters.</p>
+<p>[1]: Gatta, F., Lillo, F., &amp; Mazzarisi, P. (2025). A high-frequency approach to Realized Risk Measures. arXiv preprint arXiv:2510.16526.</p>
 <section id="parameters">
 <h2>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
 <blockquote>
@@ -125,6 +113,11 @@ The characteristic function approach is used to recover the low-frequency risk m
 </li>
 <li><dl class="simple">
 <dt>n_points: int, optional</dt><dd><p>Number of points used to evaluate the ES (which is computed as the average of equi-spaced quantile estimates at probability levels theta_j &lt;= theta). Default is 8.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>ma: bool, optional</dt><dd><p>Whether the returns are assumed to follow an MA(1) process. If False, returns are assumed to be iid. Default is False.</p>
 </dd>
 </dl>
 </li>
@@ -191,172 +184,6 @@ Every value is assumed to be a list [degrees of freedom, location, scale].</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="models.Ch_RealizedRisk.quantile_from_cf_wrapper">
-<span class="sig-name descname"><span class="pre">quantile_from_cf_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipend</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#Ch_RealizedRisk.quantile_from_cf_wrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.Ch_RealizedRisk.quantile_from_cf_wrapper" title="Link to this definition"></a></dt>
-<dd><p>Compute the daily risk measures from the high-frequency characteristic function, by using the Gil-Pelaez formula.
-The intra-day returns are assumed to be iid, t-distributed with 0 mean. The routine is used in the multiprocessing framework.</p>
-<dl class="simple">
-<dt>INPUTS:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>theta: float</dt><dd><p>the target probability level.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>nu: float</dt><dd><p>the degrees of freedom.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>mu: float</dt><dd><p>the location parameter of the t-distribution.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>scale: float</dt><dd><p>the scale parameter of the t-distribution.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>pipend: multiprocessing.Pipe</dt><dd><p>The pipe to communicate the result to the main process.</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="models.Ch_RealizedRisk_MA">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.</span></span><span class="sig-name descname"><span class="pre">Ch_RealizedRisk_MA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#Ch_RealizedRisk_MA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.Ch_RealizedRisk_MA" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Filtering approach proposed in [1]. It is based on the assumption of MA(1) subordinated returns with t-distributed innovations.
-The characteristic function approach is used to recover the low-frequency risk measures.</p>
-<p>[1]: Gatta, F., &amp; Lillo, F., &amp; Mazzarisi, P. (2024). A High-frequency Approach to Risk Measures. TBD.</p>
-<section id="id1">
-<h2>Parameters:<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
-<blockquote>
-<div><ul class="simple">
-<li><dl class="simple">
-<dt>theta: float</dt><dd><p>the target probability level.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>n_points: int, optional</dt><dd><p>Number of points used to evaluate the ES (which is computed as the average of equi-spaced quantile estimates at probability levels theta_j &lt;= theta). Default is 8.</p>
-</dd>
-</dl>
-</li>
-</ul>
-</div></blockquote>
-</section>
-<section id="id2">
-<h2>Example of usage<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">price2params_ma</span>
-<span class="kn">from</span> <span class="nn">models</span> <span class="kn">import</span> <span class="n">Ch_RealizedRisk_MA</span>
-
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;stock.csv&#39;</span><span class="p">)</span>
-<span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
-<span class="n">price</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Close</span>
-
-<span class="n">fitted_pars</span> <span class="o">=</span> <span class="n">price2params_ma</span><span class="p">(</span><span class="n">price</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mi">78</span><span class="p">,</span> <span class="n">sub_type</span><span class="o">=</span><span class="s1">&#39;tpv&#39;</span><span class="p">)</span> <span class="c1">#Fit the t-distribution parameters</span>
-
-<span class="n">mdl</span> <span class="o">=</span> <span class="n">Ch_RealizedRisk_MA</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span> <span class="c1">#Initialize the model</span>
-<span class="n">qf</span><span class="p">,</span> <span class="n">ef</span> <span class="o">=</span> <span class="n">mdl</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="mi">78</span><span class="p">,</span> <span class="n">fitted_pars</span><span class="p">,</span> <span class="n">jobs</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span> <span class="c1">#Run to obtain the filtered VaR and ES</span>
-</pre></div>
-</div>
-</section>
-<section id="id3">
-<h2>Methods:<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
-<dl class="py method">
-<dt class="sig sig-object py" id="models.Ch_RealizedRisk_MA.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">internal_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#Ch_RealizedRisk_MA.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.Ch_RealizedRisk_MA.fit" title="Link to this definition"></a></dt>
-<dd><p>Map the t-distribution parameters into the low-frequency risk measures.</p>
-<dl class="simple">
-<dt>INPUTS:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>c: int</dt><dd><p>the number of time indexes to sample.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>internal_state: dict</dt><dd><p>the fitted t-distribution parameters. Every key correspond to a day.
-Every value is assumed to be a list [autoregressive parameter, degrees of freedom, location, scale].</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>jobs: int, optional</dt><dd><p>Number of simultaneous processes to run. Default is 1.</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-<dt>OUTPUTS:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>qf: dict</dt><dd><p>the filtered VaR. It has the same keys as internal_state.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>ef: dict</dt><dd><p>the filtered ES. It has the same keys as internal_state.</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="models.Ch_RealizedRisk_MA.quantile_from_cf_wrapper">
-<span class="sig-name descname"><span class="pre">quantile_from_cf_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipend</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#Ch_RealizedRisk_MA.quantile_from_cf_wrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.Ch_RealizedRisk_MA.quantile_from_cf_wrapper" title="Link to this definition"></a></dt>
-<dd><p>Compute the daily risk measures from the high-frequency characteristic function, by using the Gil-Pelaez formula.
-The intra-day returns are assumed to be iid, t-distributed with 0 mean. The routine is used in the multiprocessing framework.</p>
-<dl class="simple">
-<dt>INPUTS:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>theta: float</dt><dd><p>the target probability level.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>phi: float</dt><dd><p>the autoregressive parameter.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>nu: float</dt><dd><p>the degrees of freedom.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>mu: float</dt><dd><p>the location parameter of the t-distribution.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>scale: float</dt><dd><p>the scale parameter of the t-distribution.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>pipend: multiprocessing.Pipe</dt><dd><p>The pipe to communicate the result to the main process.</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 </dd></dl>
 
@@ -366,8 +193,8 @@ The intra-day returns are assumed to be iid, t-distributed with 0 mean. The rout
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Filtering approach proposed in [1]. It is based on the assumption of self-similarity.</p>
 <p>[1]: Dimitriadis, T., &amp; Halbleib, R. (2022). Realized quantiles. Journal of Business &amp; Economic Statistics, 40(3), 1346-1361.</p>
-<section id="id4">
-<h2>Parameters:<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<section id="id1">
+<h2>Parameters:<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
 <blockquote>
 <div><ul class="simple">
 <li><dl class="simple">
@@ -394,8 +221,8 @@ The intra-day returns are assumed to be iid, t-distributed with 0 mean. The rout
 </ul>
 </div></blockquote>
 </section>
-<section id="id5">
-<h2>Example of usage<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<section id="id2">
+<h2>Example of usage<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">models</span> <span class="kn">import</span> <span class="n">DH_RealizedRisk</span>
@@ -409,8 +236,8 @@ The intra-day returns are assumed to be iid, t-distributed with 0 mean. The rout
 </pre></div>
 </div>
 </section>
-<section id="id6">
-<h2>Methods:<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<section id="id3">
+<h2>Methods:<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="models.DH_RealizedRisk.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tpv_int_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#DH_RealizedRisk.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.DH_RealizedRisk.fit" title="Link to this definition"></a></dt>
@@ -455,13 +282,13 @@ The intra-day returns are assumed to be iid, t-distributed with 0 mean. The rout
 
 <dl class="py class">
 <dt class="sig sig-object py" id="models.MC_RealizedRisk">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.</span></span><span class="sig-name descname"><span class="pre">MC_RealizedRisk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#MC_RealizedRisk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.MC_RealizedRisk" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.</span></span><span class="sig-name descname"><span class="pre">MC_RealizedRisk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#MC_RealizedRisk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.MC_RealizedRisk" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Filtering approach proposed in [1]. It is based on the assumption of iid subordinated returns following the t-distribution.
-The Monte-Carlo approach is used to recover the low-frequency risk measures.</p>
-<p>[1]: Gatta, F., &amp; Lillo, F., &amp; Mazzarisi, P. (2024). A High-frequency Approach to Risk Measures. TBD.</p>
-<section id="id7">
-<h2>Parameters:<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<p>Filtering approach proposed in [1].
+The Monte-Carlo approach is used to recover the low-frequency risk measures from the high-frequency distribution (Student’s t) parameters.</p>
+<p>[1]: Gatta, F., Lillo, F., &amp; Mazzarisi, P. (2025). A high-frequency approach to Realized Risk Measures. arXiv preprint arXiv:2510.16526.</p>
+<section id="id4">
+<h2>Parameters:<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
 <blockquote>
 <div><ul class="simple">
 <li><dl class="simple">
@@ -469,11 +296,16 @@ The Monte-Carlo approach is used to recover the low-frequency risk measures.</p>
 </dd>
 </dl>
 </li>
+<li><dl class="simple">
+<dt>ma: bool, optional</dt><dd><p>Whether the returns are assumed to follow an MA(1) process. If False, returns are assumed to be iid. Default is False.</p>
+</dd>
+</dl>
+</li>
 </ul>
 </div></blockquote>
 </section>
-<section id="id8">
-<h2>Example of usage<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
+<section id="id5">
+<h2>Example of usage<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">price2params</span>
@@ -490,8 +322,8 @@ The Monte-Carlo approach is used to recover the low-frequency risk measures.</p>
 </pre></div>
 </div>
 </section>
-<section id="id9">
-<h2>Methods:<a class="headerlink" href="#id9" title="Link to this heading"></a></h2>
+<section id="id6">
+<h2>Methods:<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
 <dl class="py method">
 <dt class="sig sig-object py" id="models.MC_RealizedRisk.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">internal_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ant_v</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#MC_RealizedRisk.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.MC_RealizedRisk.fit" title="Link to this definition"></a></dt>
@@ -538,215 +370,6 @@ Every value is a dict itself with the same keys as internal_state.</p>
 <dt>ef: dict</dt><dd><p>the filtered ES. If self.theta is a float, it has the same keys as internal_state.
 If self.theta is a list, it has a key for every element in the list.
 Every value is a dict itself with the same keys as internal_state.</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="models.MC_RealizedRisk.simulate_iid">
-<span class="sig-name descname"><span class="pre">simulate_iid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ant_v</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#MC_RealizedRisk.simulate_iid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.MC_RealizedRisk.simulate_iid" title="Link to this definition"></a></dt>
-<dd><p>Monte-Carlo simulation for extracting the distribution of the low-frequency return.</p>
-<dl class="simple">
-<dt>INPUTS:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>N: int</dt><dd><p>the number of Monte-Carlo paths to simulate (if ant_v==True, the number is doubled).</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>c: int</dt><dd><p>the number of time indexes to sample.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>nu: float</dt><dd><p>the degrees of freedom.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>mu: float</dt><dd><p>the location parameter of the t-distribution.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>sigma: float</dt><dd><p>the scale parameter of the t-distribution.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>ant_v: bool, optional</dt><dd><p>Flag to indicate if the antithetic variates should be used. Default is True.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>seed: int, optional</dt><dd><p>Seed for the random number generator. Default is None.</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-<dt>OUTPUTS:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>samples: ndarray</dt><dd><p>the simulated low-frequency returns.</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="models.MC_RealizedRisk_MA">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">models.</span></span><span class="sig-name descname"><span class="pre">MC_RealizedRisk_MA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#MC_RealizedRisk_MA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.MC_RealizedRisk_MA" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Filtering approach proposed in [1]. It is based on the assumption of MA(1) subordinated returns with t-distributed innovations.
-The Monte-Carlo approach is used to recover the low-frequency risk measures.</p>
-<p>[1]: Gatta, F., &amp; Lillo, F., &amp; Mazzarisi, P. (2024). A High-frequency Approach to Risk Measures. TBD.</p>
-<section id="id10">
-<h2>Parameters:<a class="headerlink" href="#id10" title="Link to this heading"></a></h2>
-<blockquote>
-<div><ul class="simple">
-<li><dl class="simple">
-<dt>theta: float or list</dt><dd><p>the target probability level, or a list of target probability levels.</p>
-</dd>
-</dl>
-</li>
-</ul>
-</div></blockquote>
-</section>
-<section id="id11">
-<h2>Example of usage<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">price2params_ma</span>
-<span class="kn">from</span> <span class="nn">models</span> <span class="kn">import</span> <span class="n">MC_RealizedRisk_MA</span>
-
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;stock.csv&#39;</span><span class="p">)</span>
-<span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
-<span class="n">price</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Close</span>
-
-<span class="n">fitted_pars</span> <span class="o">=</span> <span class="n">price2params_ma</span><span class="p">(</span><span class="n">price</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="mi">78</span><span class="p">,</span> <span class="n">sub_type</span><span class="o">=</span><span class="s1">&#39;tpv&#39;</span><span class="p">)</span> <span class="c1">#Fit the t-distribution parameters</span>
-
-<span class="n">mdl</span> <span class="o">=</span> <span class="n">MC_RealizedRisk_MA</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">])</span> <span class="c1">#Initialize the model</span>
-<span class="n">qf</span><span class="p">,</span> <span class="n">ef</span> <span class="o">=</span> <span class="n">mdl</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="mi">78</span><span class="p">,</span> <span class="n">fitted_pars</span><span class="p">)</span> <span class="c1">#Run to obtain the filtered VaR and ES</span>
-</pre></div>
-</div>
-</section>
-<section id="id12">
-<h2>Methods:<a class="headerlink" href="#id12" title="Link to this heading"></a></h2>
-<dl class="py method">
-<dt class="sig sig-object py" id="models.MC_RealizedRisk_MA.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">internal_state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ant_v</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#MC_RealizedRisk_MA.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.MC_RealizedRisk_MA.fit" title="Link to this definition"></a></dt>
-<dd><p>Map the t-distribution parameters into the low-frequency risk measures.</p>
-<dl class="simple">
-<dt>INPUTS:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>N: int</dt><dd><p>the number of Monte-Carlo paths to simulate (if ant_v==True, the number is doubled).</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>c: int</dt><dd><p>the number of time indexes to sample.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>internal_state: dict</dt><dd><p>the fitted t-distribution parameters. Every key correspond to a day.
-Every value is assumed to be a list [degrees of freedom, location, scale].</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>ant_v: bool, optional</dt><dd><p>Flag to indicate if the antithetic variates should be used. Default is True.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>seed: int, optional</dt><dd><p>Seed for the random number generator. Default is None.</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-<dt>OUTPUTS:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>qf: dict</dt><dd><p>the filtered VaR. If self.theta is a float, it has the same keys as internal_state.
-If self.theta is a list, it has a key for every element in the list.
-Every value is a dict itself with the same keys as internal_state.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>ef: dict</dt><dd><p>the filtered ES. If self.theta is a float, it has the same keys as internal_state.
-If self.theta is a list, it has a key for every element in the list.
-Every value is a dict itself with the same keys as internal_state.</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="models.MC_RealizedRisk_MA.simulate_ma">
-<span class="sig-name descname"><span class="pre">simulate_ma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ant_v</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/models.html#MC_RealizedRisk_MA.simulate_ma"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#models.MC_RealizedRisk_MA.simulate_ma" title="Link to this definition"></a></dt>
-<dd><p>Monte-Carlo simulation for extracting the distribution of the low-frequency return.</p>
-<dl class="simple">
-<dt>INPUTS:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>N: int</dt><dd><p>the number of Monte-Carlo paths to simulate (if ant_v==True, the number is doubled).</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>c: int</dt><dd><p>the number of time indexes to sample.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>phi: float</dt><dd><p>the autoregressive coefficient.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>nu: float</dt><dd><p>the degrees of freedom.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>mu: float</dt><dd><p>the location parameter of the t-distribution.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>sigma: float</dt><dd><p>the scale parameter of the t-distribution.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>ant_v: bool, optional</dt><dd><p>Flag to indicate if the antithetic variates should be used. Default is True.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>seed: int, optional</dt><dd><p>Seed for the random number generator. Default is None.</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-<dt>OUTPUTS:</dt><dd><ul class="simple">
-<li><dl class="simple">
-<dt>samples: ndarray</dt><dd><p>the simulated low-frequency returns.</p>
 </dd>
 </dl>
 </li>

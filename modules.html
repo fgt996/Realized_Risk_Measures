@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>realized_risk_measures &mdash; realized_risk_measures 1.0.0 documentation</title>
@@ -85,20 +85,12 @@
 <li class="toctree-l1"><a class="reference internal" href="eval_utils.html">eval_utils module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="eval_utils.html#eval_utils.AS14_test"><code class="docutils literal notranslate"><span class="pre">AS14_test</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="eval_utils.html#eval_utils.PinballLoss"><code class="docutils literal notranslate"><span class="pre">PinballLoss</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="eval_utils.html#eval_utils.barrera_loss"><code class="docutils literal notranslate"><span class="pre">barrera_loss</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="eval_utils.html#eval_utils.bootstrap_mean_test"><code class="docutils literal notranslate"><span class="pre">bootstrap_mean_test</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="eval_utils.html#eval_utils.patton_loss"><code class="docutils literal notranslate"><span class="pre">patton_loss</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="eval_utils.html#eval_utils.joint_loss"><code class="docutils literal notranslate"><span class="pre">joint_loss</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="models.html">models module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="models.html#models.Ch_RealizedRisk"><code class="docutils literal notranslate"><span class="pre">Ch_RealizedRisk</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="models.html#models.Ch_RealizedRisk.fit"><code class="docutils literal notranslate"><span class="pre">Ch_RealizedRisk.fit()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.Ch_RealizedRisk.quantile_from_cf_wrapper"><code class="docutils literal notranslate"><span class="pre">Ch_RealizedRisk.quantile_from_cf_wrapper()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="models.html#models.Ch_RealizedRisk_MA"><code class="docutils literal notranslate"><span class="pre">Ch_RealizedRisk_MA</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.Ch_RealizedRisk_MA.fit"><code class="docutils literal notranslate"><span class="pre">Ch_RealizedRisk_MA.fit()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.Ch_RealizedRisk_MA.quantile_from_cf_wrapper"><code class="docutils literal notranslate"><span class="pre">Ch_RealizedRisk_MA.quantile_from_cf_wrapper()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="models.html#models.DH_RealizedRisk"><code class="docutils literal notranslate"><span class="pre">DH_RealizedRisk</span></code></a><ul>
@@ -107,12 +99,6 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="models.html#models.MC_RealizedRisk"><code class="docutils literal notranslate"><span class="pre">MC_RealizedRisk</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="models.html#models.MC_RealizedRisk.fit"><code class="docutils literal notranslate"><span class="pre">MC_RealizedRisk.fit()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.MC_RealizedRisk.simulate_iid"><code class="docutils literal notranslate"><span class="pre">MC_RealizedRisk.simulate_iid()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="models.html#models.MC_RealizedRisk_MA"><code class="docutils literal notranslate"><span class="pre">MC_RealizedRisk_MA</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.MC_RealizedRisk_MA.fit"><code class="docutils literal notranslate"><span class="pre">MC_RealizedRisk_MA.fit()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="models.html#models.MC_RealizedRisk_MA.simulate_ma"><code class="docutils literal notranslate"><span class="pre">MC_RealizedRisk_MA.simulate_ma()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -122,11 +108,9 @@
 <li class="toctree-l2"><a class="reference internal" href="utils.html#utils.IntraSeries_2_DayReturn"><code class="docutils literal notranslate"><span class="pre">IntraSeries_2_DayReturn()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html#utils.Subordinator"><code class="docutils literal notranslate"><span class="pre">Subordinator</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="utils.html#utils.Subordinator.predict"><code class="docutils literal notranslate"><span class="pre">Subordinator.predict()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="utils.html#utils.Subordinator.sample_with_tie_break"><code class="docutils literal notranslate"><span class="pre">Subordinator.sample_with_tie_break()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html#utils.price2params"><code class="docutils literal notranslate"><span class="pre">price2params()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="utils.html#utils.price2params_ma"><code class="docutils literal notranslate"><span class="pre">price2params_ma()</span></code></a></li>
 </ul>
 </li>
 </ul>

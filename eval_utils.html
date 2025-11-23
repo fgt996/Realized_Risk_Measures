@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>eval_utils module &mdash; realized_risk_measures 1.0.0 documentation</title>
@@ -50,9 +50,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">eval_utils module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#eval_utils.AS14_test"><code class="docutils literal notranslate"><span class="pre">AS14_test</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#eval_utils.PinballLoss"><code class="docutils literal notranslate"><span class="pre">PinballLoss</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#eval_utils.barrera_loss"><code class="docutils literal notranslate"><span class="pre">barrera_loss</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#eval_utils.bootstrap_mean_test"><code class="docutils literal notranslate"><span class="pre">bootstrap_mean_test</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#eval_utils.patton_loss"><code class="docutils literal notranslate"><span class="pre">patton_loss</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#eval_utils.joint_loss"><code class="docutils literal notranslate"><span class="pre">joint_loss</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="models.html">models module</a></li>
@@ -91,7 +89,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="eval_utils.AS14_test">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">eval_utils.</span></span><span class="sig-name descname"><span class="pre">AS14_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_side</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_boot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/eval_utils.html#AS14_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eval_utils.AS14_test" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#eval_utils.bootstrap_mean_test" title="eval_utils.bootstrap_mean_test"><code class="xref py py-class docutils literal notranslate"><span class="pre">bootstrap_mean_test</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">bootstrap_mean_test</span></code></p>
 <p>Acerbi-Szekely test for assessing the goodness of the Expected Shortfall estimate, with both Z1 and Z2 statistics, as described in:</p>
 <p>Acerbi, C., &amp; Szekely, B. (2014). Back-testing expected shortfall. Risk, 27(11), 76-81.</p>
 <section id="parameters">
@@ -172,46 +170,45 @@
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="eval_utils.barrera_loss">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">eval_utils.</span></span><span class="sig-name descname"><span class="pre">barrera_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ret_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/eval_utils.html#barrera_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eval_utils.barrera_loss" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="eval_utils.joint_loss">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">eval_utils.</span></span><span class="sig-name descname"><span class="pre">joint_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ret_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/eval_utils.html#joint_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eval_utils.joint_loss" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Barrera loss function</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="eval_utils.bootstrap_mean_test">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">eval_utils.</span></span><span class="sig-name descname"><span class="pre">bootstrap_mean_test</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mu_target</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">one_side</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_boot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/eval_utils.html#bootstrap_mean_test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eval_utils.bootstrap_mean_test" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Bootstrap test for assessing whenever mean of a sample is == or &gt;= a target value</p>
+<p>Joint VaR-ES loss function -see Eq. (6) in:</p>
+<p>Patton, A. J., Ziegel, J. F., &amp; Chen, R. (2019). Dynamic semiparametric models for expected shortfall (and value-at-risk). Journal of econometrics, 211(2), 388-413.</p>
 <section id="id4">
 <h2>Parameters:<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
 <blockquote>
 <div><ul class="simple">
 <li><dl class="simple">
-<dt>mu_target: float</dt><dd><p>the mean to test against</p>
+<dt>theta: float</dt><dd><p>the target confidence level</p>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
-<dt>one_side: bool, optional</dt><dd><p>if True, the test is one sided (i.e. H0: mu &gt;= mu_target), otherwise it is two-sided (i.e. H0: mu == mu_target). Default is False</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>n_boot: int, optional</dt><dd><p>the number of bootstrap replications. Default is 10_000</p>
+<dt>ret_mean: bool, optional</dt><dd><p>if True, the function returns the mean of the loss, otherwise the loss point-by-point. Default is True</p>
 </dd>
 </dl>
 </li>
 </ul>
 </div></blockquote>
 </section>
-</dd></dl>
+<section id="id5">
+<h2>Example of usage<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">eval_utils</span> <span class="kn">import</span> <span class="n">joint_loss</span>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="eval_utils.patton_loss">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">eval_utils.</span></span><span class="sig-name descname"><span class="pre">patton_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">theta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ret_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/eval_utils.html#patton_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#eval_utils.patton_loss" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Patton loss function</p>
+<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">250</span><span class="p">)</span><span class="o">*</span><span class="mf">1e-2</span>  <span class="c1">#Replace with price returns</span>
+<span class="n">qf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">250</span><span class="p">)</span>  <span class="c1">#Replace with quantile forecasts</span>
+<span class="n">ef</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">250</span><span class="p">)</span>  <span class="c1">#Replace with expected shortfall forecasts</span>
+<span class="n">theta</span> <span class="o">=</span> <span class="mf">0.05</span> <span class="c1">#Set the desired confidence level</span>
+
+<span class="n">losses</span> <span class="o">=</span> <span class="n">joint_loss</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">ret_mean</span><span class="o">=</span><span class="kc">False</span><span class="p">)(</span><span class="n">qf</span><span class="p">,</span> <span class="n">ef</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="c1">#Compute the patton loss</span>
+</pre></div>
+</div>
+</section>
+<section id="id6">
+<h2>Methods:<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+</section>
 </dd></dl>
 
 </section>
