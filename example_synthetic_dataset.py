@@ -312,7 +312,7 @@ for idx2use in range(len(Gen_params)):
                 if sub+str(win_len) not in out_res[year][c]['states'].keys(): #Check if the computation has already been done; otherwise, do it
                     out_res[year][c]['states'][sub+str(win_len)] = utils.price2params(
                         out_res[year][c]['y_price'], c=c, mu_prior=2/(win_len+1),
-                        sub_type='identity', hist_mean=hist_mu/c)
+                        sub_type='identity', ma=True, hist_mean=hist_mu/c)
                     
             # Save the progress
             with open(f'{output_path}idx_{idx2use}.pickle', 'wb') as f:
