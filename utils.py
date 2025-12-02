@@ -214,7 +214,7 @@ def Fill_RTH_Minutes(df):
 
     return df
 
-def price2params(y, c, mu_prior=0, sub_type='clock', vol=None, ma=False, hist_mean=None):
+def price2params(y, c, mu_prior=0., sub_type='clock', vol=None, ma=False, hist_mean=None):
     '''
     Fit the intra-day distribution, which is assumed to be a Student's t-distribution
 
@@ -258,20 +258,20 @@ def price2params(y, c, mu_prior=0, sub_type='clock', vol=None, ma=False, hist_me
     '''
     if isinstance(mu_prior, type(None)):
         if ma:
-            _price2params_ma(y, c, mu=mu_prior, sub_type=sub_type, vol=vol)
+            return _price2params_ma(y, c, mu=mu_prior, sub_type=sub_type, vol=vol)
         else:
             return _price2params_iid(y, c, mu=mu_prior, sub_type=sub_type, vol=vol)
     else:
         if mu_prior > 0:
             if ma:
-                _price2params_ma_EWMA(
+                return _price2params_ma_EWMA(
                     y, c, mu=hist_mean, smooth_par=mu_prior, sub_type=sub_type, vol=vol)
             else:
-                _price2params_iid_EWMA(
+                return _price2params_iid_EWMA(
                     y, c, mu=hist_mean, smooth_par=mu_prior, sub_type=sub_type, vol=vol)
         else:
             if ma:
-                _price2params_ma(y, c, mu=mu_prior, sub_type=sub_type, vol=vol)
+                return _price2params_ma(y, c, mu=mu_prior, sub_type=sub_type, vol=vol)
             else:
                 return _price2params_iid(y, c, mu=mu_prior, sub_type=sub_type, vol=vol)
         
