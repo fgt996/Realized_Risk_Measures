@@ -557,8 +557,8 @@ for idx2use in range(len(Gen_params)):
             with open(f'{output_path}idx_{idx2use}.pickle', 'wb') as f:
                 pickle.dump(out_res, f)
 
-            print('\n')
-            print('Finished year', year, '\n\n\n')
+        print('\n')
+        print('Finished year', year, '\n\n\n')
 
 #%% Compute the distance from the Ground Truth
 
